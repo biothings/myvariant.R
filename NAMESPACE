@@ -1,0 +1,12 @@
+importFrom("httr", "GET", "POST", "content", "add_headers", "verbose")
+importFrom("jsonlite", "fromJSON")
+importFrom("Hmisc", "cut2")
+import("S4Vectors")
+exportClasses("MyVariant")
+export("MyVariant")
+export("getVariant")
+export("getVariants")
+export("queryVariant")
+export("queryVariants")
+exportMethods("metadata")
+
