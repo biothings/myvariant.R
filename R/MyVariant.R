@@ -97,12 +97,13 @@ setMethod(".request.post", c(myvariant="MyVariant"),
     i <- 1
     repeat {
         if (verbose) {
-          message("Querying chunk ", i)
+          message("Querying chunk ", i, " of ", n)
         }
         params.i <- c(params, vecparams.splitcollapse[[i]])
         reslist[[i]] <- .request.post(myvariant=myvariant, path, params=params.i)
         ## This avoids an extra sleep after the last fragment
         if (i == n){
+            message("Concatenating data, please be patient.")
             break()
         }
         Sys.sleep(myvariant@delay)
