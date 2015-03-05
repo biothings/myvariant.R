@@ -1,6 +1,7 @@
 library(S4Vectors)
 library(httr)
 library(jsonlite)
+library(plyr)
 
 version <- '0.5'
 
@@ -25,21 +26,15 @@ setValidity("MyVariant", validMyVariantObject)
 
 .return.as <- function(gene_obj, return.as=c("DataFrame", "records", "text")) {
     return.as <- match.arg(return.as)
-    ## Get the records, then call jsonlite:::simplify to convert to a
-    ## data.frame
     if (return.as == "DataFrame") {
-        gene_obj <- .return.as(gene_obj, "records")
-        outdf <-jsonlite:::simplify(gene_obj)
-        ## This expands out any inner columns that may themselves be data frames.
-        outdf <- .unnest.df(outdf)
-        df <- .df2DF(outdf)
+        gene_obj <- .json2df(gene_obj)
+        df <- DataFrame(gene_obj)
         df$`_version` <- NULL
         return(df)
-        #return(.df2DF(outdf))
     } else if (return.as == "text") {
-        return(gene_obj)
+        return(.json.batch.collapse(gene_obj))
     } else {
-        return(fromJSON(gene_obj, simplifyDataFrame=FALSE))}
+        return(fromJSON(.json.batch.collapse(gene_obj), simplifyDataFrame=FALSE))}
 }
 
 setGeneric(".request.get", signature=c("myvariant"),
@@ -110,9 +105,9 @@ setMethod(".request.post", c(myvariant="MyVariant"),
         i <- i+1
     }
     # This gets the text that would have been returned if we could submit all genes in a single query.
-    restext <- .json.batch.collapse(reslist)
-    return(restext)
-   #reslist
+    #restext <- .json.batch.collapse(reslist)
+    #return(restext)
+   reslist
 }
 
 setMethod("metadata", c(x="MyVariant"), function(x, ...) {

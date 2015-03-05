@@ -76,6 +76,12 @@ library(Hmisc)
     paste("[", x, "]")
 }
 
+.json2df <- function(x){
+   li <- lapply(x, fromJSON, flatten=TRUE)
+   df <- rbind.fill(li)
+   df
+}
+
 .uncollapse <- function(x, sep=",") {
     x <- as.character(unlist(x))
     unlist(strsplit(x, sep, fixed=TRUE))
