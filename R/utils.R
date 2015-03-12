@@ -1,5 +1,6 @@
 ## mygene utility functions
 library(Hmisc)
+library(plyr)
 
 .collapse <- function(...) {
     paste(unlist(list(...)), sep=",", collapse=",")
@@ -63,11 +64,16 @@ library(Hmisc)
     res
 }
 
-#before writing to TSV/CSV/xlsx
-# .convert2csv<-function(df){
-#     needpc <-sapply(df, is, "CharacterList")
-#     df[needpc]<-lapply(df[needpc],rtracklayer:::pasteCollapse)
-# }
+.convertColumn4csv <- function(column){
+  needpc <- sapply(column, is, "CharacterList")
+  column[needpc] <- lapply(column[needpc], .collapse)
+  column
+}
+
+.df2csv <- function(df){
+  df1 <- sapply(df, .convertColumn4csv)
+  DataFrame(df1)
+}
 
 .json.batch.collapse <- function(x){
     #stopifnot(all(grepl("^\\s*\\[.*\\]\\s*$", x, perl=TRUE)))

@@ -1,7 +1,6 @@
 library(S4Vectors)
 library(httr)
 library(jsonlite)
-library(plyr)
 
 version <- '0.5'
 
