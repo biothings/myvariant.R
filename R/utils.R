@@ -72,7 +72,7 @@ library(plyr)
 
 .df2csv <- function(df){
   df1 <- sapply(df, .convertColumn4csv)
-  DataFrame(df1)
+  DataFrame(df1, check.names=FALSE)
 }
 
 .json.batch.collapse <- function(x){
@@ -84,7 +84,7 @@ library(plyr)
 
 .json2df <- function(x){
    li <- lapply(x, fromJSON, flatten=TRUE)
-   df <- rbind.fill(li)
+   df <- plyr::rbind.fill(li)
    df
 }
 
