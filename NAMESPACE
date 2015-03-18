@@ -9,4 +9,4 @@ export("getVariants")
 export("queryVariant")
 export("queryVariants")
 exportMethods("metadata")
-
+export("readHgvs")

@@ -42,7 +42,7 @@ readIns <- function(vcf.object){
 }
 
 readIndels <- function(vcf.object){
-  subs <- subset(miller, nchar(as.character(REF)) > nchar(as.character(unlist(ALT))))
+  subs <- subset(vcf.object, nchar(as.character(REF)) > nchar(as.character(unlist(ALT))))
   indels <- subset(subs, nchar(as.character(unlist(ALT))) > 1)
   if(length(indels) > 0){
     hgvs <- paste("chr", seqnames(indels), ":g.", start(indels), 
