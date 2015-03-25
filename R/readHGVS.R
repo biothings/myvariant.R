@@ -1,13 +1,17 @@
 ### Various functions for reading VCF columns and creating HGVS IDs
 library(VariantAnnotation)
 
-readSnps <- function(vcf.object){
-  subs <- subset(vcf.object, nchar(as.character(REF)) == nchar(as.character(unlist(ALT))))
-  snps <- subset(subs, nchar(as.character(REF)) == 1)
+getVcf <- function(file.path){
+  snpVcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
+  names(snpVcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")
+  snpVcf
+}
+
+readSnps <- function(vcf){
+  subs <- subset(vcf, nchar(REF) == nchar(ALT))
+  snps <- subset(subs, nchar(REF) == 1)
   if(length(snps) > 0){
-    hgvs <- paste("chr", seqnames(snps), ":g.", start(snps), 
-                  as.character(snps$REF), ">", 
-                  as.character(unlist(snps$ALT)), sep="")
+    hgvs <- paste(vcf$CHROM, ":g.", vcf$POS, vcf$REF, ">", vcf$ALT, sep="")
   }
   else {
     hgvs <- NULL
@@ -15,11 +19,12 @@ readSnps <- function(vcf.object){
   hgvs
 }
 
-readDels <- function(vcf.object){
-  dels <- subset(vcf.object, nchar(as.character(REF)) > nchar(as.character(unlist(ALT))))
+readDels <- function(vcf){
+  dels <- subset(vcf, nchar(REF) > nchar(ALT))
   if(length(dels) > 0){
-    hgvs <- paste("chr", seqnames(dels), ":g.", `+`(start(dels), 1),
-                  "_", end(dels), "del", sep="")
+    end <- dels$POS + (nchar(dels$REF) - 1)
+    hgvs <- paste(dels$CHROM, ":g.", dels$POS,
+                  "_", end, "del", sep="")
   }
   else {
     hgvs <- NULL
@@ -27,13 +32,14 @@ readDels <- function(vcf.object){
   hgvs
 }
 
-readIns <- function(vcf.object){
-  subs <- subset(vcf.object, nchar(as.character(REF)) < nchar(as.character(unlist(ALT))))
+readIns <- function(vcf){
+  subs <- subset(vcf, nchar(REF) < nchar(ALT))
   if(length(subs) > 0){
-    alt <- as.character(unlist(subs$ALT))
+    alt <- subs$ALT
     ins <- unlist(lapply(alt, function(i) substring(i, 2, nchar(i))))
-    hgvs <- paste("chr", seqnames(subs), ":g.", start(subs),
-                  "_", end(subs), "ins", ins, sep="")
+    end <- subs$POS + nchar(ins)
+    hgvs <- paste(subs$CHROM, ":g.", subs$POS,
+                  "_", end, "ins", ins, sep="")
   }
   else {
     hgvs <- NULL
@@ -41,26 +47,24 @@ readIns <- function(vcf.object){
   hgvs
 }
 
-readIndels <- function(vcf.object){
-  subs <- subset(vcf.object, nchar(as.character(REF)) > nchar(as.character(unlist(ALT))))
-  indels <- subset(subs, nchar(as.character(unlist(ALT))) > 1)
-  if(length(indels) > 0){
-    hgvs <- paste("chr", seqnames(indels), ":g.", start(indels), 
-                  "_", end(indels), as.character(unlist(indels$ALT)), sep="")
-  }
-  else{ 
-    hgvs <- NULL}
-  hgvs
-}
+# readIndels <- function(vcf){
+#   subs <- subset(vcf, nchar(REF) > nchar(ALT))
+#   indels <- subset(subs, nchar(ALT)) > 1)
+#   if(length(indels) > 0){
+#     hgvs <- paste(indels$CHROM, ":g.", indels$POS, 
+#                   "_", indels$POS, indels$ALT, sep="")
+#   }
+#   else{ 
+#     hgvs <- NULL}
+#   hgvs
+# }
 
-getHgvs <- function(vcf.file){
-  read <- readVcf(vcf.file, genome="hg19")
-  vcf <- rowData(read)
+getHgvs <- function(vcf){
   snps <- readSnps(vcf)
   dels <- readDels(vcf)
   ins <- readIns(vcf)
-  indels <- readIndels(vcf)
-  hgvs <- list(snps=snps, deletionss=dels, insertions=ins, indels=indels)
+  #indels <- readIndels(vcf)
+  hgvs <- list(snps=snps, deletions=dels, insertions=ins)#, indels=indels)
   hgvs
 }
 

@@ -53,6 +53,8 @@ setMethod(".request.get", c(myvariant="MyVariant"),
     if (res$status_code != 200) 
         stop("Request returned unexpected status code:\n",
             paste(capture.output(print(res)), collapse="\n"))
+    #fromJSON(res)
+    #res$`_version` <- NULL
     httr::content(res, "text")
 })
 
