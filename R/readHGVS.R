@@ -1,5 +1,4 @@
 ### Various functions for reading VCF columns and creating HGVS IDs
-library(VariantAnnotation)
 
 getVcf <- function(file.path){
   snpVcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
@@ -37,7 +36,7 @@ readIns <- function(vcf){
   if(length(subs) > 0){
     alt <- subs$ALT
     ins <- unlist(lapply(alt, function(i) substring(i, 2, nchar(i))))
-    end <- subs$POS + nchar(ins)
+    end <- subs$POS + 1
     hgvs <- paste(subs$CHROM, ":g.", subs$POS,
                   "_", end, "ins", ins, sep="")
   }
