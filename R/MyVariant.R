@@ -150,7 +150,7 @@ setMethod("getVariants", c(myvariant="MyVariant"),
     if (exists('fields')) {
         params <- list(...)
         params[['fields']] <- .collapse(fields)
-        params <- lapply(params, function(x) {str(x);.collapse(x)})
+        params <- lapply(params, .collapse)
     }
     vecparams <- list(ids=.uncollapse(hgvsids))
     res <- .repeated.query(myvariant, '/variant/', vecparams=vecparams, params=params)

@@ -1,9 +1,10 @@
 ### Various functions for reading VCF columns and creating HGVS IDs
+library(S4Vectors)
 
 getVcf <- function(file.path){
-  snpVcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
-  names(snpVcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")
-  snpVcf
+  Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
+  names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")
+  Vcf
 }
 
 readSnps <- function(vcf){
