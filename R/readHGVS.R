@@ -11,7 +11,7 @@ readSnps <- function(vcf){
   subs <- subset(vcf, nchar(REF) == nchar(ALT))
   snps <- subset(subs, nchar(REF) == 1)
   if(length(snps) > 0){
-    hgvs <- paste(vcf$CHROM, ":g.", vcf$POS, vcf$REF, ">", vcf$ALT, sep="")
+    hgvs <- paste(snps$CHROM, ":g.", snps$POS, snps$REF, ">", snps$ALT, sep="")
   }
   else {
     hgvs <- NULL
