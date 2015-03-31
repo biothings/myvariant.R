@@ -10,8 +10,10 @@ getVcf <- function(file.path){
 readSnps <- function(vcf){
   subs <- subset(vcf, nchar(REF) == nchar(ALT))
   snps <- subset(subs, nchar(REF) == 1)
-  if(length(snps) > 0){
-    hgvs <- paste(snps$CHROM, ":g.", snps$POS, snps$REF, ">", snps$ALT, sep="")
+  if(nrow(snps) > 0){
+    hgvs <- data.frame("query"=paste(snps$CHROM, ":g.", snps$POS, snps$REF, ">", snps$ALT, sep=""),
+                       "type"=rep("snp", nrow(snps)), 
+                       "pos"=paste(snps$CHROM, ":", snps$POS, "-", snps$POS, sep=""))
   }
   else {
     hgvs <- NULL
@@ -21,10 +23,12 @@ readSnps <- function(vcf){
 
 readDels <- function(vcf){
   dels <- subset(vcf, nchar(REF) > nchar(ALT))
-  if(length(dels) > 0){
+  if(nrow(dels) > 0){
     end <- dels$POS + (nchar(dels$REF) - 1)
-    hgvs <- paste(dels$CHROM, ":g.", dels$POS,
-                  "_", end, "del", sep="")
+    hgvs <- data.frame("query"=paste(dels$CHROM, ":g.", dels$POS,
+                  "_", end, "del", sep=""), 
+                  "type"=rep("deletion", nrow(dels)), 
+                  "pos"=paste(dels$CHROM, ":", dels$POS, "-", dels$POS, sep=""))
   }
   else {
     hgvs <- NULL
@@ -34,12 +38,14 @@ readDels <- function(vcf){
 
 readIns <- function(vcf){
   subs <- subset(vcf, nchar(REF) < nchar(ALT))
-  if(length(subs) > 0){
+  if(nrow(subs) > 0){
     alt <- subs$ALT
     ins <- unlist(lapply(alt, function(i) substring(i, 2, nchar(i))))
     end <- subs$POS + 1
-    hgvs <- paste(subs$CHROM, ":g.", subs$POS,
-                  "_", end, "ins", ins, sep="")
+    hgvs <- data.frame("query"=paste("id"=subs$CHROM, ":g.", subs$POS,
+                  "_", end, "ins", ins, sep=""), 
+                  "type"=rep("insertion", nrow(subs)), 
+                  "pos"=paste(subs$CHROM, ":", subs$POS, "-", subs$POS, sep=""))
   }
   else {
     hgvs <- NULL
@@ -64,11 +70,18 @@ getHgvs <- function(vcf){
   dels <- readDels(vcf)
   ins <- readIns(vcf)
   #indels <- readIndels(vcf)
-  hgvs <- list(snps=snps, deletions=dels, insertions=ins)#, indels=indels)
+  hgvs <- do.call(rbind, list(snps, dels, ins))
   hgvs
 }
 
-#df.list <- lapply(list(hgvs[1:10000],hgvs[10001:20000],hgvs[20001:30000], hgvs[30001:length(hgvs)]), getVariants)
-#dfs <- lapply(df.list, as.data.frame)
-#snps <- do.call(rbind.fill, dfs)
+.pasteChr <- function(hgvs.id){
+  if (grepl("chr", hgvs.id)){
+    return(hgvs.id)
+  }
+  else{
+    hgvs <- paste("chr", hgvs.id, sep="")
+    return(hgvs)
+  }
+}
+
 
