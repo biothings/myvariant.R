@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+%\VignetteIndexEntry{Using mygene.R}
+%\\SweaveOpts{concordance=TRUE}
+<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
+\newcommand{\exitem}[3]
+{\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
+
+\title{MyVariant.info R Client}
+\author{Adam Mark, Chunlei Wu}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+\tableofcontents
+
+\section{Overview}
+
+MyVariant.Info is a simple-to-use REST web services to query/retrieve genetic variant annotation from an aggregation of resources. It's designed with simplicity and performance emphasized. \Rpackage{myvariant} is an easy-to-use R wrapper to access MyVariant.Info services.
+\section{Variant Annotation Service}
+
+\subsection{\Rfunction{getVariant}}
+
+\begin{itemize}
+\item Use \Rfunction{getVariant}, the wrapper for GET query of "/variant/<hgvsid>" service, to return the variant object for the given HGVS id.
+\end{itemize} 
+
+<<echo=FALSE>>=
+library(myvariant)
+@
+
+<<>>=
+variant <- getVariant("chr1:g.35367G>A")
+length(variant)
+variant[[1]]$dbnsfp$genename
+variant[[1]]$cadd$phred
+@ 
+
+\subsection{\Rfunction{getVariants}}
+
+\begin{itemize}
+\item Use \Rfunction{getVariants}, the wrapper for POST query of "/variant" service, to return the list of variant objects for the given character vector of HGVS ids.
+\end{itemize} 
+
+
+<<>>=
+getVariants(c("chr1:g.876499A>G", "chr1:g.881627G>A", "chr1:g.883625A>G", "chr1:g.887560A>C", "chr1:g.887801A>G", "chr1:g.888639T>C"), fields="cadd.consequence")
+@
+
+
+\section{Variant Query Service}
+
+\subsection{\Rfunction{queryVariant}}
+
+\begin{itemize}
+\item \Rfunction{queryVariant} is a wrapper for GET query of "/query?q=<query>" service, to return  the query result. This functions accepts wild card input terms and allows you to query for variants the contain a specific annotation. For example, the following query searches for the CADD phred score and consequence for all variants whose genename (dbNSFP) is MLL2.
+\end{itemize}
+
+
+
+<<>>=
+queryVariant(q="dbnsfp.genename:MLL2", fields="cadd.phred,cadd.consequence")
+@
+
+\begin{itemize}
+\item You can also use \Rfunction{queryVariant} to retrieve all annotations that map to a specific rsID.
+\end{itemize}
+
+<<>>=
+queryVariant(q="rs58991260")$hits
+@
+
+% \subsection{\Rfunction{queryVariants}}
+% 
+% \begin{itemize}
+% \item Use \Rfunction{queryVariants}, a wrapper for POST query of "/query" service, to return  the batch query result.
+% \end{itemize}
+% 
+% 
+% <<>>=
+% queryVariants(c("rs587782795", "rs41293467", "rs587782691", "rs587782057", "rs587782159", "rs587782055"),
+%           scopes="dbsnp.rsid", fields="dbnsfp.sift.score")
+% @ 
+
+
+\section{References}
+MyVariant.info
+\email{help@mygene.info}
+
+\end{document}

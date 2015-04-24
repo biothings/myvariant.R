@@ -1,5 +1,7 @@
 ### Various functions for reading VCF columns and creating HGVS IDs
 library(S4Vectors)
+library(plyr)
+library(magrittr)
 
 getVcf <- function(file.path){
   Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
@@ -7,71 +9,80 @@ getVcf <- function(file.path){
   Vcf
 }
 
-readSnps <- function(vcf){
-  subs <- subset(vcf, nchar(REF) == nchar(ALT))
-  snps <- subset(subs, nchar(REF) == 1)
-  if(nrow(snps) > 0){
-    hgvs <- data.frame("query"=paste(snps$CHROM, ":g.", snps$POS, snps$REF, ">", snps$ALT, sep=""),
-                       "type"=rep("snp", nrow(snps)), 
-                       "pos"=paste(snps$CHROM, ":", snps$POS, "-", snps$POS, sep=""))
-  }
-  else {
-    hgvs <- NULL
-  }
-  hgvs
-}
-
-readDels <- function(vcf){
-  dels <- subset(vcf, nchar(REF) > nchar(ALT))
-  if(nrow(dels) > 0){
-    end <- dels$POS + (nchar(dels$REF) - 1)
-    hgvs <- data.frame("query"=paste(dels$CHROM, ":g.", dels$POS,
-                  "_", end, "del", sep=""), 
-                  "type"=rep("deletion", nrow(dels)), 
-                  "pos"=paste(dels$CHROM, ":", dels$POS, "-", dels$POS, sep=""))
-  }
-  else {
-    hgvs <- NULL
-  }
-  hgvs
-}
-
-readIns <- function(vcf){
-  subs <- subset(vcf, nchar(REF) < nchar(ALT))
-  if(nrow(subs) > 0){
-    alt <- subs$ALT
-    ins <- unlist(lapply(alt, function(i) substring(i, 2, nchar(i))))
-    end <- subs$POS + 1
-    hgvs <- data.frame("query"=paste("id"=subs$CHROM, ":g.", subs$POS,
-                  "_", end, "ins", ins, sep=""), 
-                  "type"=rep("insertion", nrow(subs)), 
-                  "pos"=paste(subs$CHROM, ":", subs$POS, "-", subs$POS, sep=""))
-  }
-  else {
-    hgvs <- NULL
-  }
-  hgvs
-}
-
-# readIndels <- function(vcf){
-#   subs <- subset(vcf, nchar(REF) > nchar(ALT))
-#   indels <- subset(subs, nchar(ALT)) > 1)
-#   if(length(indels) > 0){
-#     hgvs <- paste(indels$CHROM, ":g.", indels$POS, 
-#                   "_", indels$POS, indels$ALT, sep="")
-#   }
-#   else{ 
-#     hgvs <- NULL}
-#   hgvs
-# }
 
 getHgvs <- function(vcf){
+  vcf <- subset(vcf, FILTER=="PASS")
+  vcf <- .normalize.subs(vcf)
   snps <- readSnps(vcf)
   dels <- readDels(vcf)
   ins <- readIns(vcf)
   #indels <- readIndels(vcf)
-  hgvs <- do.call(rbind, list(snps, dels, ins))
+  hgvs <- do.call(rbind.fill, list(snps, dels, ins))#, indels))
   hgvs
+}
+
+readSnps <- function(vcf){
+  vcf %>%
+    subset(!grepl(",", ALT) & nchar(REF) == nchar(ALT) &
+             nchar(REF) == 1) %>%
+    transform(query=paste(CHROM, ":g.", POS, REF, ">", ALT, sep=""),
+              type="snp", 
+              pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
+}
+
+readDels <- function(vcf){
+  vcf %>%
+    subset(!grepl(",", ALT) & nchar(REF) > nchar(ALT) &
+             substring(REF, 1, 1) == ALT) %>%
+    transform(query=paste(CHROM, ":g.", POS,
+                  "_", (POS + nchar(REF) - 1), "del", sep=""),
+                  type="deletion",
+                  pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
+}
+
+readIns <- function(vcf){
+  insertions <- subset(vcf, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
+                  REF == substring(ALT, 1, 1))
+  ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
+  end <- insertions$POS + 1
+  hgvs <- data.frame(query=paste("id"=insertions$CHROM, ":g.", insertions$POS,
+                  "_", end, "ins", ins, sep=""), 
+                  type="insertion", 
+                  pos=paste(.trim(insertions$CHROM), ":", .trim(insertions$POS), "-", .trim(insertions$POS), sep=""))
+  hgvs
+}
+
+readIndels <- function(vcf){
+  dels <- subset(vcf, !grepl(",", ALT) & nchar(REF) > 1 && nchar(ALT) == 1)
+  ## case 1, nchar(ALT) == 1
+  hgvs.1 <- paste(dels$CHROM, ":g.", dels$POS, 
+                  "_", (dels$POS + nchar(dels$REF) - 1), "delins", dels$ALT, sep="")
+  
+  ## case 2, nchar(REF) == 1
+  ins <- subset(vcf, nchar(REF) == 1 & nchar(ALT) > 1)
+  hgvs.2 <- paste(ins$CHROM, ":g.", ins$POS,
+                  "delins", ins$ALT)
+  indel <- subset(vcf, nchar(REF) > 1 & nchar(ALT) > 1)
+  ## case 3, 
+  hgvs.3 <- paste(indel$CHROM, ":g.", indel$POS,
+                  "_", (indel$POS + nchar(indels$ALT) - 1),
+                  "delins", indel$ALT)
+  delins <- do.call(rbind, c(dels, ins, indel))
+  hgvs <- data.frame(query=c(hgvs.1, hgvs.2, hgvs.3),
+                     type=rep("indel", nrow(dels) + nrow(ins) + nrow(indel),
+                     pos=paste(.trim(delins$CHROM), ":", .trim(delins$POS), "-", .trim(delins$POS), sep="")))
+  hgvs
+}
+
+
+## normalizes rows where ALT == "GA,G" (multiple ALT values)
+.normalize.subs <- function(vcf){
+  if (nrow(vcf) == 0)
+    return(vcf)
+  split.alt <- strsplit(vcf$ALT, ",")
+  vcf <- vcf[rep(seq(nrow(vcf)), elementLengths(split.alt)),]
+  vcf$ALT <- unlist(split.alt)
+  return(vcf)
 }
 
 .pasteChr <- function(hgvs.id){
@@ -84,4 +95,6 @@ getHgvs <- function(vcf){
   }
 }
 
-
+.trim <- function(x){
+  gsub("^\\s+|\\s+$", "", x)
+}
