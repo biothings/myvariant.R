@@ -11,13 +11,14 @@ getVcf <- function(file.path){
 
 
 getHgvs <- function(vcf){
-  vcf <- subset(vcf, FILTER=="PASS")
-  vcf <- .normalize.subs(vcf)
+  #vcf <- subset(vcf, FILTER=="PASS")
+  #vcf <- .normalize.subs(vcf)
   snps <- readSnps(vcf)
   dels <- readDels(vcf)
   ins <- readIns(vcf)
-  #indels <- readIndels(vcf)
-  hgvs <- do.call(rbind.fill, list(snps, dels, ins))#, indels))
+  indels <- readIndels(vcf)
+  hgvs <- do.call(rbind.fill, list(snps, dels, ins, indels))
+  #hgvs$query <- lapply(.pasteChr(hgvs$query))
   hgvs
 }
 
@@ -53,8 +54,9 @@ readIns <- function(vcf){
 }
 
 readIndels <- function(vcf){
-  dels <- subset(vcf, !grepl(",", ALT) & nchar(REF) > 1 && nchar(ALT) == 1)
+  vcf <- subset(vcf, !grepl(",", ALT))
   ## case 1, nchar(ALT) == 1
+  dels <- subset(vcf, nchar(REF) > 1 && nchar(ALT) == 1)
   hgvs.1 <- paste(dels$CHROM, ":g.", dels$POS, 
                   "_", (dels$POS + nchar(dels$REF) - 1), "delins", dels$ALT, sep="")
   
@@ -62,18 +64,19 @@ readIndels <- function(vcf){
   ins <- subset(vcf, nchar(REF) == 1 & nchar(ALT) > 1)
   hgvs.2 <- paste(ins$CHROM, ":g.", ins$POS,
                   "delins", ins$ALT)
-  indel <- subset(vcf, nchar(REF) > 1 & nchar(ALT) > 1)
+  
   ## case 3, 
+  indel <- subset(vcf, nchar(REF) > 1 & nchar(ALT) > 1)
   hgvs.3 <- paste(indel$CHROM, ":g.", indel$POS,
-                  "_", (indel$POS + nchar(indels$ALT) - 1),
+                  "_", (indel$POS + nchar(indel$ALT) - 1),
                   "delins", indel$ALT)
+  
   delins <- do.call(rbind, c(dels, ins, indel))
   hgvs <- data.frame(query=c(hgvs.1, hgvs.2, hgvs.3),
                      type=rep("indel", nrow(dels) + nrow(ins) + nrow(indel),
                      pos=paste(.trim(delins$CHROM), ":", .trim(delins$POS), "-", .trim(delins$POS), sep="")))
   hgvs
 }
-
 
 ## normalizes rows where ALT == "GA,G" (multiple ALT values)
 .normalize.subs <- function(vcf){
@@ -82,7 +85,7 @@ readIndels <- function(vcf){
   split.alt <- strsplit(vcf$ALT, ",")
   vcf <- vcf[rep(seq(nrow(vcf)), elementLengths(split.alt)),]
   vcf$ALT <- unlist(split.alt)
-  return(vcf)
+  vcf
 }
 
 .pasteChr <- function(hgvs.id){
