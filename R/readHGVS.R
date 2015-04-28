@@ -10,7 +10,7 @@ getVcf <- function(file.path){
 }
 
 
-getHgvs <- function(vcf){
+getAll <- function(vcf){
   #vcf <- subset(vcf, FILTER=="PASS")
   vcf <- .normalize.subs(vcf)
   snps <- readSnps(vcf)
@@ -22,7 +22,7 @@ getHgvs <- function(vcf){
   hgvs
 }
 
-readSnps <- function(vcf){
+getSnps <- function(vcf){
   vcf %>%
     subset(!grepl(",", ALT) & nchar(REF) == nchar(ALT) &
              nchar(REF) == 1) %>%
@@ -31,7 +31,7 @@ readSnps <- function(vcf){
               pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
 }
 
-readDels <- function(vcf){
+getDels <- function(vcf){
   vcf %>%
     subset(!grepl(",", ALT) & nchar(REF) > nchar(ALT) &
              substring(REF, 1, 1) == ALT) %>%
@@ -41,7 +41,7 @@ readDels <- function(vcf){
                   pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
 }
 
-readIns <- function(vcf){
+getIns <- function(vcf){
   insertions <- subset(vcf, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
                   REF == substring(ALT, 1, 1))
   ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
@@ -53,7 +53,7 @@ readIns <- function(vcf){
   hgvs
 }
 
-readIndels <- function(vcf){
+getIndels <- function(vcf){
   vcf <- subset(vcf, !grepl(",", ALT))
   ## case 1, nchar(ALT) == 1
   dels <- subset(vcf, nchar(REF) > 1 && nchar(ALT) == 1)
@@ -79,7 +79,7 @@ readIndels <- function(vcf){
 }
 
 ## normalizes rows where ALT == "GA,G" (multiple ALT values)
-.normalize.subs <- function(vcf){
+normalize.vcf <- function(vcf){
   if (nrow(vcf) == 0)
     return(vcf)
   split.alt <- strsplit(vcf$ALT, ",")
