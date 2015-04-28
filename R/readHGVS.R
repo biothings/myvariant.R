@@ -12,12 +12,12 @@ getVcf <- function(file.path){
 
 getHgvs <- function(vcf){
   #vcf <- subset(vcf, FILTER=="PASS")
-  #vcf <- .normalize.subs(vcf)
+  vcf <- .normalize.subs(vcf)
   snps <- readSnps(vcf)
   dels <- readDels(vcf)
   ins <- readIns(vcf)
-  indels <- readIndels(vcf)
-  hgvs <- do.call(rbind.fill, list(snps, dels, ins, indels))
+  #indels <- readIndels(vcf)
+  hgvs <- do.call(rbind.fill, list(snps, dels, ins))#, indels))
   #hgvs$query <- lapply(.pasteChr(hgvs$query))
   hgvs
 }
