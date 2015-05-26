@@ -3,10 +3,18 @@ library(S4Vectors)
 library(plyr)
 library(magrittr)
 
+options(warn=1)
+
 getVcf <- function(file.path){
   Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
   names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")
+  if(!grepl("chr", Vcf$CHROM)){
+    Vcf$CHROM <- paste("chr", Vcf$CHROM, sep="")
+  }
   Vcf
+#   Vcf <- DataFrame(transform(Vcf, colsplit(V10, split = "\\:", names = c('GT', 'AD', 'DP', 'GQ', 'PL')), stringsAsFactors=F))
+#   Vcf$AD <- .factor2List(Vcf$AD)
+#   Vcf$PL <- .factor2List(Vcf$PL)
 }
 
 
@@ -88,15 +96,6 @@ normalize.vcf <- function(vcf){
   vcf
 }
 
-.pasteChr <- function(hgvs.id){
-  if (grepl("chr", hgvs.id)){
-    return(hgvs.id)
-  }
-  else{
-    hgvs <- paste("chr", hgvs.id, sep="")
-    return(hgvs)
-  }
-}
 
 .trim <- function(x){
   gsub("^\\s+|\\s+$", "", x)

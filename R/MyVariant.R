@@ -6,7 +6,7 @@ version <- '0.5'
 
 MyVariant <- setClass("MyVariant",
     slots=list(base.url="character", delay="numeric", step="numeric", version="character", verbose="logical", debug="logical"),
-    prototype=list(base.url="http://myvariant.info/v1", delay=1, step=1000, version=version, verbose=TRUE, debug=FALSE))
+    prototype=list(base.url="http://dev.myvariant.info/v1", delay=1, step=1000, version=version, verbose=TRUE, debug=FALSE))
 
 validMyVariantObject <- function(object) {
     errors <- character(0)
@@ -28,7 +28,7 @@ setValidity("MyVariant", validMyVariantObject)
     if (return.as == "DataFrame") {
         gene_obj <- .json2df(gene_obj)
         df <- DataFrame(gene_obj)
-	df <- rename(df, c("X_id"="_id"))
+	  #df <- rename(df, c("X_id"="_id"))
         df$`_version` <- NULL
         return(df)
     } else if (return.as == "text") {

@@ -1,0 +1,31 @@
+\documentclass[12pt]{article}
+%\VignetteIndexEntry{Using MyVariant.R}
+%\\SweaveOpts{concordance=TRUE}
+\RequirePackage{/Library/Frameworks/R.framework/Versions/3.2/Resources/library/BiocStyle/resources/latex/Bioconductor}
+
+\AtBeginDocument{\bibliographystyle{/Library/Frameworks/R.framework/Versions/3.2/Resources/library/BiocStyle/resources/latex/unsrturl}}
+\newcommand{\exitem}[3]
+{\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
+
+\title{MyVariant.info R Client}
+\author{Adam Mark, Chunlei Wu}
+
+\usepackage{Sweave}
+\begin{document}
+\input{myvariant-concordance}
+
+\maketitle
+
+\tableofcontents
+
+\section{Overview}
+
+MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic variant annotation from an aggregation of variant annotatio resources. \Rpackage{myvariant} is an easy-to-use R wrapper to access MyVariant.Info services and explore variant annotions.
+\section{Variant Annotation Service}
+
+\subsection{Obtaining HGVS IDs from a VCF file. }
+
+\begin{itemize}
+\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. 
+\end{itemize} 
+

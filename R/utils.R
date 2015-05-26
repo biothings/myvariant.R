@@ -1,6 +1,7 @@
 ## mygene utility functions
 library(Hmisc)
 library(plyr)
+library(magrittr)
 
 .collapse <- function(...) {
     paste(unlist(list(...)), sep=",", collapse=",")
@@ -91,4 +92,13 @@ library(plyr)
 .uncollapse <- function(x, sep=",") {
     x <- as.character(unlist(x))
     unlist(strsplit(x, sep, fixed=TRUE))
+}
+
+.factor2List <- function(col){
+  li <- col %>% as.character %>% strsplit(",") %>% lapply(as.numeric) %>% List
+  li
+}
+
+.splitCols <- function(split.list, colName){
+  lapply(sapply(split.list, function(i) strsplit(i[grepl(colName, i)], "=")), function(i) tryCatch(i[[2]], error=function(e) e <- NA_integer_)) %>% as.numeric
 }
