@@ -3,11 +3,12 @@ library(S4Vectors)
 library(plyr)
 library(magrittr)
 
-options(warn=1)
 
 getVcf <- function(file.path){
-  Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=F, sep='\t', comment.char="#")
-  names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")
+  stopifnot(grepl(".vcf", file.path))
+  Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=FALSE, sep='\t', comment.char="#")
+  
+  names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")[1:ncol(Vcf)]
   if(!grepl("chr", Vcf$CHROM)){
     Vcf$CHROM <- paste("chr", Vcf$CHROM, sep="")
   }
@@ -19,14 +20,11 @@ getVcf <- function(file.path){
 
 
 getAll <- function(vcf){
-  #vcf <- subset(vcf, FILTER=="PASS")
   vcf <- normalize.vcf(vcf)
   snps <- getSnps(vcf)
   dels <- getDels(vcf)
   ins <- getIns(vcf)
-  #indels <- readIndels(vcf)
-  hgvs <- do.call(rbind.fill, list(snps, dels, ins))#, indels))
-  #hgvs$query <- lapply(.pasteChr(hgvs$query))
+  hgvs <- do.call(rbind.fill, list(snps, dels, ins))
   hgvs
 }
 

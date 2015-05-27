@@ -1,4 +1,4 @@
-## mygene utility functions
+## myvarint utility functions
 library(Hmisc)
 library(plyr)
 library(magrittr)

@@ -20,13 +20,13 @@ BiocStyle::latex()
 
 \section{Overview}
 
-MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic variant annotation from an aggregation of variant annotatio resources. \Rpackage{myvariant} is an easy-to-use R wrapper to access MyVariant.Info services and explore variant annotions.
+MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic variant annotation from an aggregation of variant annotation resources. \Rpackage{myvariant} is an easy-to-use R wrapper to access MyVariant.Info services and explore variant annotions.
 \section{Variant Annotation Service}
 
 \subsection{Obtaining HGVS IDs from a VCF file. }
 
 \begin{itemize}
-\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. 
+\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. Keep in mind the vcf object is merely created for the purpose of extracting HGVS IDs. There are no functions in the \Rcode{myvariant} package that operate on the vcf object other than the functions to extract the IDs. 
 \end{itemize} 
 
 <<echo=FALSE>>=
@@ -34,8 +34,18 @@ library(myvariant)
 @
 
 <<>>=
-
+vcf <- getVcf("../dbsnp_mini.vcf")
+head(vcf[c('CHROM', 'POS', 'rsID', 'REF', 'ALT')])
 @ 
+\begin{itemize}
+\item You can then use \Rfunction{getSnps} to extract HGVS IDs from the vcf object. The IDs will be location appended as the \Rcode{'query'} column.
+\end{itemize}
+
+<<>>=
+snps <- getSnps(vcf)
+head(snps[c('query', 'type', 'pos')])
+hgvs <- snps$query
+@
 
 
 \subsection{\Rfunction{getVariant}}
@@ -50,7 +60,6 @@ library(myvariant)
 
 <<>>=
 variant <- getVariant("chr1:g.35367G>A")
-length(variant)
 variant[[1]]$dbnsfp$genename
 variant[[1]]$cadd$phred
 @ 
@@ -63,7 +72,7 @@ variant[[1]]$cadd$phred
 
 
 <<>>=
-getVariants(c("chr1:g.876499A>G", "chr1:g.881627G>A", "chr1:g.883625A>G", "chr1:g.887560A>C", "chr1:g.887801A>G", "chr1:g.888639T>C"), fields="cadd.consequence")
+getVariants(c("chr3:g.56771251A>C", "chr1:g.881627G>A", "chr8:g.62416074G>A", "chr1:g.887560A>C", "chr12:g.31477822G>A", "chr1:g.888639T>C"), fields="cadd.consequence")
 @
 
 
