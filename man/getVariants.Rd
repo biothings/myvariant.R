@@ -63,6 +63,6 @@ vars <- c('chr1:g.866422C>T',
 'chr1:g.878330C>G')
 
 ## Return the list of variant object for the given list of HGVS ids.
-getVariants(vars)
+df <- getVariants(vars, fields="dbsnp, wellderly")
 
 }

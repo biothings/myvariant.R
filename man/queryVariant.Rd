@@ -11,7 +11,8 @@ Return  the query result.
 This is a wrapper for GET query of "/query?q=<query>" service.
 }
 \usage{
-queryVariant(q, ..., return.as=c("DataFrame", "records", "text"), myvariant)
+queryVariant(q, ..., return.as=c("DataFrame", "records", "text"), 
+                     myvariant)
 }
 \arguments{
   \item{q}{

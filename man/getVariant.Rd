@@ -47,7 +47,9 @@ Ref: https://github.com/Network-of-BioThings/myvariant.info/wiki
 getVariant("chr7:g.55241707G>T")
 
 ## customize fields
-getVariant("chr7:g.55241707G>T", fields=c("dbnsfp.cadd.phred", "dbnsfp.polyphen2"), return.as="text")
+getVariant("chr7:g.55241707G>T", 
+          fields=c("dbnsfp.cadd.phred", "dbnsfp.polyphen2"), 
+          return.as="text")
 }
 
 

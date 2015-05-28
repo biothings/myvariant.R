@@ -32,7 +32,9 @@ http://www.hgvs.org/mutnomen/recs-DNA.html
 }
 \examples{
 ## return HGVS IDs for all All in a Vcf
-all <- getAll(vcf.df)
+file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+vcf <- getVcf(file.path)
+all <- getAll(vcf)
 hgvs <- all$query
 }
 

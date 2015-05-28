@@ -33,7 +33,9 @@ http://www.hgvs.org/mutnomen/recs-DNA.html
 }
 \examples{
 ## return HGVS IDs for all deletions in a Vcf
-deletions <- getDels(vcf.df)
+file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+vcf <- getVcf(file.path)
+deletions <- getDels(vcf)
 hgvs <- deletions$query
 }
 

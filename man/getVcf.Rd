@@ -10,10 +10,10 @@ This is a simple function to read in your Vcf file only for the purpose of passi
 The five functions will extract information to creat proper HGVS IDs for querying MyVariant.info.
 }
 \usage{
-getVcf(input.file.path)
+getVcf(file.path)
 }
 \arguments{
-  \item{input.file.path}{
+  \item{file.path}{
 path to Vcf file.
 }
 }
@@ -32,7 +32,8 @@ Ref: https://myvariant.info
 }
 \examples{
 ## return Vcf data.frame
-vcf.df <- getVcf("/path/to/vcf")
+file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+vcf.df <- getVcf(file.path)
 }
 
 

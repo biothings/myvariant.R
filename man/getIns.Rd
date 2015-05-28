@@ -14,7 +14,7 @@ getIns(vcf.df)
 }
 \arguments{
   \item{vcf.df}{
-Vcf data.frame created by \code{\link{getVcfl}}.
+Vcf data.frame created by \code{\link{getVcf}}.
 }
 }
 \value{returns a data.frame of your Vcf with insertion HGVS IDs as new column}
@@ -33,8 +33,10 @@ http://www.hgvs.org/mutnomen/recs-DNA.html
 }
 \examples{
 ## return HGVS IDs for all insertions in a Vcf
-insertions <- getIns(vcf.df)
-hgvs <- inerstions$query
+file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+vcf <- getVcf(file.path)
+insertions <- getIns(vcf)
+hgvs <- insertions$query
 }
 
 

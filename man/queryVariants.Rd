@@ -12,7 +12,9 @@ Return the batch query result.
 This is a wrapper for POST query of "/query" service.
 }
 \usage{
-queryVariants(qterms, scopes=NULL, ..., return.as=c("DataFrame", "records", "text"), myvariant)
+queryVariants(qterms, scopes=NULL, ..., 
+                      return.as=c("DataFrame", "records", "text"), 
+                      myvariant)
 }
 
 \arguments{

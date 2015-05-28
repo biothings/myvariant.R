@@ -7,7 +7,6 @@ library(magrittr)
 getVcf <- function(file.path){
   stopifnot(grepl(".vcf", file.path))
   Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=FALSE, sep='\t', comment.char="#")
-  
   names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")[1:ncol(Vcf)]
   if(!grepl("chr", Vcf$CHROM)){
     Vcf$CHROM <- paste("chr", Vcf$CHROM, sep="")
@@ -19,17 +18,17 @@ getVcf <- function(file.path){
 }
 
 
-getAll <- function(vcf){
-  vcf <- normalize.vcf(vcf)
+getAll <- function(vcf.df){
+  vcf <- normalize.vcf(vcf.df)
   snps <- getSnps(vcf)
   dels <- getDels(vcf)
   ins <- getIns(vcf)
-  hgvs <- do.call(rbind.fill, list(snps, dels, ins))
+  hgvs <- do.call(plyr::rbind.fill, list(snps, dels, ins))
   hgvs
 }
 
-getSnps <- function(vcf){
-  vcf %>%
+getSnps <- function(vcf.df){
+  vcf.df %>%
     subset(!grepl(",", ALT) & nchar(REF) == nchar(ALT) &
              nchar(REF) == 1) %>%
     transform(query=paste(CHROM, ":g.", POS, REF, ">", ALT, sep=""),
@@ -37,8 +36,8 @@ getSnps <- function(vcf){
               pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
 }
 
-getDels <- function(vcf){
-  vcf %>%
+getDels <- function(vcf.df){
+  vcf.df %>%
     subset(!grepl(",", ALT) & nchar(REF) > nchar(ALT) &
              substring(REF, 1, 1) == ALT) %>%
     transform(query=paste(CHROM, ":g.", POS,
@@ -47,8 +46,8 @@ getDels <- function(vcf){
                   pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
 }
 
-getIns <- function(vcf){
-  insertions <- subset(vcf, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
+getIns <- function(vcf.df){
+  insertions <- subset(vcf.df, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
                   REF == substring(ALT, 1, 1))
   ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
   end <- insertions$POS + 1
@@ -59,37 +58,47 @@ getIns <- function(vcf){
   hgvs
 }
 
-getIndels <- function(vcf){
-  vcf <- subset(vcf, !grepl(",", ALT))
+getIndels <- function(vcf.df){
+  vcf <- subset(vcf.df, !grepl(",", ALT))
   ## case 1, nchar(ALT) == 1
-  dels <- subset(vcf, nchar(REF) > 1 && nchar(ALT) == 1)
+  
+  dels <- subset(vcf, nchar(REF) > 1 & nchar(ALT) == 1)
+  hgvs.1 <- NULL
+  if(nrow(dels) > 0){
   hgvs.1 <- paste(dels$CHROM, ":g.", dels$POS, 
                   "_", (dels$POS + nchar(dels$REF) - 1), "delins", dels$ALT, sep="")
-  
+  }
   ## case 2, nchar(REF) == 1
   ins <- subset(vcf, nchar(REF) == 1 & nchar(ALT) > 1)
+  hgvs.2 <- NULL
+  if(nrow(ins) > 0){
   hgvs.2 <- paste(ins$CHROM, ":g.", ins$POS,
                   "delins", ins$ALT)
-  
+  }
   ## case 3, 
   indel <- subset(vcf, nchar(REF) > 1 & nchar(ALT) > 1)
+  hgvs.3 <- NULL
+  if(nrow(indel) > 0){
   hgvs.3 <- paste(indel$CHROM, ":g.", indel$POS,
                   "_", (indel$POS + nchar(indel$ALT) - 1),
                   "delins", indel$ALT)
-  
-  delins <- do.call(rbind, c(dels, ins, indel))
+  }
+  delins <- do.call(rbind, list(dels, ins, indel))
+  if(nrow(delins) > 0){
   hgvs <- data.frame(query=c(hgvs.1, hgvs.2, hgvs.3),
                      type=rep("indel", nrow(dels) + nrow(ins) + nrow(indel),
                      pos=paste(.trim(delins$CHROM), ":", .trim(delins$POS), "-", .trim(delins$POS), sep="")))
+  }
+  else{hgvs <- NULL}
   hgvs
 }
 
 ## normalizes rows where ALT == "GA,G" (multiple ALT values)
-normalize.vcf <- function(vcf){
-  if (nrow(vcf) == 0)
-    return(vcf)
-  split.alt <- strsplit(vcf$ALT, ",")
-  vcf <- vcf[rep(seq(nrow(vcf)), elementLengths(split.alt)),]
+normalize.vcf <- function(vcf.df){
+  if (nrow(vcf.df) == 0)
+    return(vcf.df)
+  split.alt <- strsplit(vcf.df$ALT, ",")
+  vcf <- vcf.df[rep(seq(nrow(vcf.df)), elementLengths(split.alt)),]
   vcf$ALT <- unlist(split.alt)
   vcf
 }

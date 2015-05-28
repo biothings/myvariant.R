@@ -9,7 +9,7 @@ BiocStyle::latex()
 {\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
 
 \title{MyVariant.info R Client}
-\author{Adam Mark, Chunlei Wu}
+\author{Adam Mark}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -34,7 +34,8 @@ library(myvariant)
 @
 
 <<>>=
-vcf <- getVcf("../dbsnp_mini.vcf")
+file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+vcf <- getVcf(file.path)
 head(vcf[c('CHROM', 'POS', 'rsID', 'REF', 'ALT')])
 @ 
 \begin{itemize}
@@ -72,7 +73,9 @@ variant[[1]]$cadd$phred
 
 
 <<>>=
-getVariants(c("chr3:g.56771251A>C", "chr1:g.881627G>A", "chr8:g.62416074G>A", "chr1:g.887560A>C", "chr12:g.31477822G>A", "chr1:g.888639T>C"), fields="cadd.consequence")
+getVariants(c("chr3:g.56771251A>C", "chr1:g.881627G>A", "chr8:g.62416074G>A", 
+              "chr1:g.887560A>C", "chr12:g.31477822G>A", "chr1:g.888639T>C"), 
+            fields="cadd.consequence")
 @
 
 
@@ -87,7 +90,7 @@ getVariants(c("chr3:g.56771251A>C", "chr1:g.881627G>A", "chr8:g.62416074G>A", "c
 
 
 <<>>=
-queryVariant(q="dbnsfp.genename:MLL2", fields="cadd.phred,cadd.consequence")
+queryVariant(q="dbnsfp.genename:MLL2", fields=c("cadd.phred", "cadd.consequence"))
 @
 
 \begin{itemize}
@@ -95,24 +98,26 @@ queryVariant(q="dbnsfp.genename:MLL2", fields="cadd.phred,cadd.consequence")
 \end{itemize}
 
 <<>>=
-queryVariant(q="rs58991260")$hits
+queryVariant(q="rs58991260", fields="dbsnp.flags")$hits
 @
 
-% \subsection{\Rfunction{queryVariants}}
-% 
-% \begin{itemize}
-% \item Use \Rfunction{queryVariants}, a wrapper for POST query of "/query" service, to return  the batch query result.
-% \end{itemize}
-% 
-% 
-% <<>>=
-% queryVariants(c("rs587782795", "rs41293467", "rs587782691", "rs587782057", "rs587782159", "rs587782055"),
-%           scopes="dbsnp.rsid", fields="dbnsfp.sift.score")
-% @ 
+\subsection{\Rfunction{queryVariants}}
+
+\begin{itemize}
+\item \Rfunction{queryVariants} is a wrapper for POST query of "/query?q=<query>" service, to return  the query result. Query terms include any available field as long as scopes are defined. The following example reads the dbSNP rsIDs from a VCF and queries for all fields. The returned DataFrame can then be easily subsetted to include, for example, those that have not been documented in the Wellderly study.
+\end{itemize}
+
+
+<<>>=
+rsids <- vcf$rsID
+res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
+subset(res, !is.na(wellderly.vartype))$query
+@
+
+
 
 
 \section{References}
 MyVariant.info
-\email{help@mygene.info}
 
 \end{document}
