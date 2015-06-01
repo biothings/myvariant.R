@@ -1,0 +1,203 @@
+\documentclass[12pt]{article}
+%\VignetteIndexEntry{Using MyVariant.R}
+%\\SweaveOpts{concordance=TRUE}
+\RequirePackage{/Library/Frameworks/R.framework/Versions/3.2/Resources/library/BiocStyle/resources/latex/Bioconductor}
+
+\AtBeginDocument{\bibliographystyle{/Library/Frameworks/R.framework/Versions/3.2/Resources/library/BiocStyle/resources/latex/unsrturl}}
+\newcommand{\exitem}[3]
+{\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
+
+\title{MyVariant.info R Client}
+\author{Adam Mark}
+
+\usepackage{Sweave}
+\begin{document}
+\input{myvariant-concordance}
+
+\maketitle
+
+\tableofcontents
+
+\section{Overview}
+
+MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic variant annotation from an aggregation of variant annotation resources. \Rpackage{myvariant} is an easy-to-use R wrapper to access MyVariant.Info services and explore variant annotions.
+\section{Variant Annotation Service}
+
+\subsection{Obtaining HGVS IDs from a VCF file. }
+
+\begin{itemize}
+\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. Keep in mind the vcf object is simply created for the purpose of extracting HGVS IDs. There are no exported functions in the \Rcode{myvariant} package that operate on the vcf object other than the functions to extract the IDs. HGVS IDs are based on the GRCh38/hg19 reference genome. Support for hg38 is coming soon.
+\end{itemize} 
+
+
+\begin{Schunk}
+\begin{Sinput}
+> file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
+> vcf <- getVcf(file.path)
+> head(vcf[c('CHROM', 'POS', 'rsID', 'REF', 'ALT')])
+\end{Sinput}
+\begin{Soutput}
+  CHROM   POS        rsID REF ALT
+1  chr1 10019 rs376643643  TA   T
+2  chr1 10055 rs373328635   T  TA
+3  chr1 10108  rs62651026   C   T
+4  chr1 10109 rs376007522   A   T
+5  chr1 10139 rs368469931   A   T
+6  chr1 10144 rs144773400  TA   T
+\end{Soutput}
+\end{Schunk}
+\begin{itemize}
+\item You can then use \Rfunction{getSnps} to extract HGVS IDs from the vcf object. The IDs will be appended as the \Rcode{'query'} column.
+\end{itemize}
+
+\begin{Schunk}
+\begin{Sinput}
+> snps <- getSnps(vcf)
+> head(snps[c('query', 'type', 'pos')])
+\end{Sinput}
+\begin{Soutput}
+             query type              pos
+3  chr1:g.10108C>T  snp chr1:10108-10108
+4  chr1:g.10109A>T  snp chr1:10109-10109
+5  chr1:g.10139A>T  snp chr1:10139-10139
+8  chr1:g.10150C>T  snp chr1:10150-10150
+9  chr1:g.10177A>C  snp chr1:10177-10177
+11 chr1:g.10180T>C  snp chr1:10180-10180
+\end{Soutput}
+\begin{Sinput}
+> hgvs <- snps$query
+\end{Sinput}
+\end{Schunk}
+
+
+\subsection{\Rfunction{getVariant}}
+
+\begin{itemize}
+\item Use \Rfunction{getVariant}, the wrapper for GET query of "/v1/variant/<hgvsid>" service, to return the variant object for the given HGVS id.
+\end{itemize} 
+
+
+\begin{Schunk}
+\begin{Sinput}
+> variant <- getVariant("chr1:g.35367G>A")
+> variant[[1]]$dbnsfp$genename
+\end{Sinput}
+\begin{Soutput}
+[1] "FAM138A"
+\end{Soutput}
+\begin{Sinput}
+> variant[[1]]$cadd$phred
+\end{Sinput}
+\begin{Soutput}
+[1] 1.493
+\end{Soutput}
+\end{Schunk}
+
+\subsection{\Rfunction{getVariants}}
+
+\begin{itemize}
+\item Use \Rfunction{getVariants}, the wrapper for POST query of "/v1/variant" service, to return the list of variant objects for the given character vector of HGVS ids.
+\end{itemize} 
+
+
+\begin{Schunk}
+\begin{Sinput}
+> getVariants(c("chr1:g.881627G>A", "chr1:g.887560A>C", "chr1:g.888639T>C",
++               "chr12:g.31477822G>A", "chr3:g.56771251A>C", "chr8:g.62416074G>A"),
++             fields="cadd.consequence")
+\end{Sinput}
+\begin{Soutput}
+DataFrame with 6 rows and 3 columns
+                  _id               query cadd.consequence
+          <character>         <character>      <character>
+1    chr1:g.881627G>A    chr1:g.881627G>A       SYNONYMOUS
+2    chr1:g.887560A>C    chr1:g.887560A>C               NA
+3    chr1:g.888639T>C    chr1:g.888639T>C               NA
+4 chr12:g.31477822G>A chr12:g.31477822G>A      STOP_GAINED
+5  chr3:g.56771251A>C  chr3:g.56771251A>C   NON_SYNONYMOUS
+6  chr8:g.62416074G>A  chr8:g.62416074G>A      SPLICE_SITE
+\end{Soutput}
+\end{Schunk}
+
+
+\section{Variant Query Service}
+
+\subsection{\Rfunction{queryVariant}}
+
+\begin{itemize}
+\item \Rfunction{queryVariant} is a wrapper for GET query of "/v1/query?q=<query>" service, to return  the query result. This function accepts wild card input terms and allows you to query for variants that contain a specific annotation. For example, the following query searches for the CADD phred score and consequence for all variants whose genename (dbNSFP) is MLL2.
+\end{itemize}
+
+
+
+\begin{Schunk}
+\begin{Sinput}
+> queryVariant(q="dbnsfp.genename:MLL2", fields=c("cadd.phred", "cadd.consequence"))
+\end{Sinput}
+\begin{Soutput}
+$hits
+                   _id   _score cadd.consequence cadd.phred
+1  chr12:g.49418460A>T 9.948488      STOP_GAINED         59
+2  chr12:g.49418658C>A 9.948488      STOP_GAINED         57
+3  chr12:g.49420281G>T 9.948488      STOP_GAINED         59
+4  chr12:g.49420340T>A 9.948488      STOP_GAINED         53
+5  chr12:g.49420364T>A 9.948488      STOP_GAINED         53
+6  chr12:g.49420844C>A 9.948488      STOP_GAINED         53
+7  chr12:g.49420888G>C 9.948488      STOP_GAINED         53
+8  chr12:g.49421602A>T 9.948488      STOP_GAINED         53
+9  chr12:g.49421807C>A 9.948488      STOP_GAINED         57
+10 chr12:g.49422661T>A 9.948488      STOP_GAINED         45
+
+$max_score
+[1] 9.948488
+
+$took
+[1] 7
+
+$total
+[1] 37953
+\end{Soutput}
+\end{Schunk}
+
+\begin{itemize}
+\item You can also use \Rfunction{queryVariant} to retrieve all annotations that map to a specific rsID.
+\end{itemize}
+
+\begin{Schunk}
+\begin{Sinput}
+> queryVariant(q="rs58991260", fields="dbsnp.flags")$hits
+\end{Sinput}
+\begin{Soutput}
+                  _id   _score                                      flags
+1 chr1:g.218631822G>A 17.48191 ASP, G5, G5A, GNO, KGPhase1, KGPhase3, SLO
+\end{Soutput}
+\end{Schunk}
+
+\subsection{\Rfunction{queryVariants}}
+
+\begin{itemize}
+\item \Rfunction{queryVariants} is a wrapper for POST query of "/v1/query?q=<query>" service, to return  the query result. Query terms include any available field as long as scopes are defined. The following example reads the dbSNP rsIDs from a VCF and queries for all fields. The returned DataFrame can then be easily subsetted to include, for example, those that have not been documented in the Wellderly study.
+\end{itemize}
+
+
+\begin{Schunk}
+\begin{Sinput}
+> rsids <- vcf$rsID
+> res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
+\end{Sinput}
+\begin{Soutput}
+Finished
+Pass returnall=TRUE to return lists of duplicate or missing query terms.
+\end{Soutput}
+\begin{Sinput}
+> #subset(res, !is.na(wellderly.vartype))$query
+\end{Sinput}
+\end{Schunk}
+
+
+
+
+\section{References}
+MyVariant.info
+
+\end{document}

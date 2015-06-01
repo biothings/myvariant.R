@@ -84,7 +84,7 @@ getVariants(c("chr1:g.881627G>A", "chr1:g.887560A>C", "chr1:g.888639T>C",
 \subsection{\Rfunction{queryVariant}}
 
 \begin{itemize}
-\item \Rfunction{queryVariant} is a wrapper for GET query of "/v1/query?q=<query>" service, to return  the query result. This functions accepts wild card input terms and allows you to query for variants the contain a specific annotation. For example, the following query searches for the CADD phred score and consequence for all variants whose genename (dbNSFP) is MLL2.
+\item \Rfunction{queryVariant} is a wrapper for GET query of "/v1/query?q=<query>" service, to return  the query result. This function accepts wild card input terms and allows you to query for variants that contain a specific annotation. For example, the following query searches for the CADD phred score and consequence for all variants whose genename (dbNSFP) is MLL2.
 \end{itemize}
 
 
@@ -111,7 +111,7 @@ queryVariant(q="rs58991260", fields="dbsnp.flags")$hits
 <<>>=
 rsids <- vcf$rsID
 res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
-subset(res, !is.na(wellderly.vartype))$query
+#subset(res, !is.na(wellderly.vartype))$query
 @
 
 
