@@ -175,10 +175,10 @@ setMethod("queryVariant", c(myvariant="MyVariant"),
     return.as <- match.arg(return.as)
     params <- list(...)
     params[['q']] <- q
-    if(exists('fields')){
-      params[['fields']] <- .collapse(fields)
+    #if(exists('fields')){
+    #  params[['fields']] <- .collapse(fields)
       params <- lapply(params, .collapse)
-    }
+    #}
     res <- .request.get(myvariant, paste("/query/", sep=""), params)
     if (return.as == "DataFrame"){
         return(fromJSON(res))
