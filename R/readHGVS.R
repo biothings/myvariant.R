@@ -20,6 +20,7 @@ getVcf <- function(file.path){
 
 
 getAll <- function(vcf.df){
+  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
   snps <- getSnps(vcf.df)
   dels <- getDels(vcf.df)
   ins <- getIns(vcf.df)
@@ -28,6 +29,7 @@ getAll <- function(vcf.df){
 }
 
 getSnps <- function(vcf.df){
+  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
   vcf.df %>%
     subset(!grepl(",", ALT) & nchar(REF) == nchar(ALT) &
              nchar(REF) == 1) %>%
@@ -37,6 +39,7 @@ getSnps <- function(vcf.df){
 }
 
 getDels <- function(vcf.df){
+  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
   vcf.df %>%
     subset(!grepl(",", ALT) & nchar(REF) > nchar(ALT) &
              substring(REF, 1, 1) == ALT) %>%
@@ -47,18 +50,20 @@ getDels <- function(vcf.df){
 }
 
 getIns <- function(vcf.df){
+  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
   insertions <- subset(vcf.df, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
                   REF == substring(ALT, 1, 1))
   ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
   end <- insertions$POS + 1
-  hgvs <- data.frame(query=paste("id"=insertions$CHROM, ":g.", insertions$POS,
+  hgvs <- cbind(insertions, data.frame(query=paste("id"=insertions$CHROM, ":g.", insertions$POS,
                   "_", end, "ins", ins, sep=""), 
                   type="insertion", 
-                  pos=paste(.trim(insertions$CHROM), ":", .trim(insertions$POS), "-", .trim(insertions$POS), sep=""))
+                  pos=paste(.trim(insertions$CHROM), ":", .trim(insertions$POS), "-", .trim(insertions$POS), sep="")))
   hgvs
 }
 
 getIndels <- function(vcf.df){
+  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
   vcf <- subset(vcf.df, !grepl(",", ALT))
   ## case 1, nchar(ALT) == 1
   

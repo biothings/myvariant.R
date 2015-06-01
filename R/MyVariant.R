@@ -1,4 +1,4 @@
-library(S4Vectors)
+library(IRanges)
 library(httr)
 library(jsonlite)
 
