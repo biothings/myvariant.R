@@ -34,7 +34,8 @@ A MyVariant object that describes how to connect to data resources. See \code{\l
 \value{returns a variant object containing the queried annotations}
 
 \references{
-Ref: https://github.com/Network-of-BioThings/myvariant.info/wiki
+http://docs.myvariant.info/en/latest/doc/variant_annotation_service.html#get-request
+http://docs.myvariant.info/en/latest/doc/variant_annotation_service.html#query-parameters
 }
 
 \seealso{

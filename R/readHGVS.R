@@ -8,6 +8,7 @@ getVcf <- function(file.path){
   stopifnot(grepl(".vcf", file.path))
   Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=FALSE, sep='\t', comment.char="#")
   names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")[1:ncol(Vcf)]
+  Vcf <- normalize.vcf(Vcf)
   if(!grepl("chr", Vcf$CHROM)){
     Vcf$CHROM <- paste("chr", Vcf$CHROM, sep="")
   }
@@ -19,10 +20,9 @@ getVcf <- function(file.path){
 
 
 getAll <- function(vcf.df){
-  vcf <- normalize.vcf(vcf.df)
-  snps <- getSnps(vcf)
-  dels <- getDels(vcf)
-  ins <- getIns(vcf)
+  snps <- getSnps(vcf.df)
+  dels <- getDels(vcf.df)
+  ins <- getIns(vcf.df)
   hgvs <- do.call(plyr::rbind.fill, list(snps, dels, ins))
   hgvs
 }

@@ -36,7 +36,8 @@ A MyVariant object that describes how to connect to data resources. See \code{\l
 \value{returns a variant object (DataFrame, list, or JSON text) containing the queried annotations}
 
 \references{
-Ref: https://github.com/Network-of-BioThings/myvariant.info/wiki
+http://docs.myvariant.info/en/latest/doc/variant_annotation_service.html#batch-queries-via-post
+http://docs.myvariant.info/en/latest/doc/variant_annotation_service.html#id2
 }
 
 \seealso{
