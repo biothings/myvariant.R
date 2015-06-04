@@ -119,5 +119,6 @@ res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
 
 \section{References}
 MyVariant.info
+help@myvariant.info
 
 \end{document}

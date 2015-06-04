@@ -28,7 +28,6 @@ http://www.hgvs.org/mutnomen/recs-DNA.html
 \code{\link{getDels}}  
 \code{\link{getSnps}}
 \code{\link{getIns}}
-\code{\link{getIndels}}
 }
 \examples{
 ## return HGVS IDs for all All in a Vcf

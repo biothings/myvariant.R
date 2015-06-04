@@ -28,7 +28,6 @@ Ref: https://myvariant.info
 \code{\link{getSnps}} 
 \code{\link{getDels}}
 \code{\link{getIns}}
-\code{\link{getIndels}}
 }
 \examples{
 ## return Vcf data.frame
