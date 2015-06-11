@@ -3,11 +3,11 @@ library(S4Vectors)
 library(plyr)
 library(magrittr)
 
-formatSingleHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
+formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
   if(nchar(ref) == nchar(alt) & nchar(ref) == 1){
     ## snp
     hgvs <- paste(chrom, ":g.", pos, ref, ">", alt, sep="")
-    if(mutant.type){var.type <- "snp"}
+    if(mutant_type){var.type <- "snp"}
   }
   else if(nchar(ref) > 1 & nchar(alt) == 1){
     ## deletion
@@ -15,12 +15,12 @@ formatSingleHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
       start <- as.integer(pos) + 1
       end <- as.integer(pos) + nchar(ref) - 1
       hgvs <- paste(chrom, ":g.", start, "_", end, "del", sep="")
-      if(mutant.type){var.type <- "deletion"}
+      if(mutant_type){var.type <- "deletion"}
     }
     else{
       end <- as.integer(pos) + nchar(ref) - 1
       hgvs <- paste(chrom, ":g.", pos, "_", end, "delins", alt, sep="")
-      if(mutant.type){var.type <- "delins"}
+      if(mutant_type){var.type <- "delins"}
     }
   }
   else if(nchar(ref) == 1 & nchar(alt) > 1){
@@ -29,23 +29,23 @@ formatSingleHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
       hgvs <- paste(chrom, ":g.", pos, "_", (as.integer(pos) + 1), "ins", sep="")
       ins_seq <- substr(alt, 2, nchar(alt))
       hgvs <- paste(hgvs, ins_seq, sep="")
-      if(mutant.type){var.type <- "insertion"}
+      if(mutant_type){var.type <- "insertion"}
     }
     else{
       hgvs <- paste(chrom, ":g.", pos, "delins", alt, sep="")
-      if(mutant.type){var.type <- "delins"}
+      if(mutant_type){var.type <- "delins"}
     }
   }
   else if(nchar(ref) > 1 & nchar(alt) > 1){
     end <- as.integer(pos) + nchar(alt) - 1
     hgvs <- paste(chrom, ":g.", pos, "_", end, "delins", alt, sep="")
-    if(mutant.type){var.type <- "delins"}
+    if(mutant_type){var.type <- "delins"}
   }
   else{stop("Cannot convert pos, chrom, ref, alt into HGVS id")}
   if(!grepl("chr", hgvs)){
     hgvs <- paste("chr", hgvs, sep="")
   }
-  if(mutant.type){
+  if(mutant_type){
     c(hgvs, var.type)
   }
   else{hgvs}
