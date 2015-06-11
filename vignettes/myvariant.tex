@@ -26,47 +26,61 @@ MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic var
 \subsection{Obtaining HGVS IDs from a VCF file. }
 
 \begin{itemize}
-\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. Keep in mind the vcf object is simply created for the purpose of extracting HGVS IDs. There are no exported functions in the \Rcode{myvariant} package that operate on the vcf object other than the functions to extract the IDs. HGVS IDs are based on the GRCh38/hg19 reference genome. Support for hg38 is coming soon.
+\item Use \Rfunction{readVcf} from the VariantAnnotation package to read a Vcf file in. The Vcf object can then be passed to \Rfunction{formatHgvs} to retrieve HGVS IDs. HGVS IDs are based on the GRCh38/hg19 reference genome. Support for hg38 is coming soon.
 \end{itemize} 
 
 
 \begin{Schunk}
 \begin{Sinput}
 > file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
-> vcf <- getVcf(file.path)
-> head(vcf[c('CHROM', 'POS', 'rsID', 'REF', 'ALT')])
+> vcf <- readVcf(file.path, genome="hg19")
+> rowRanges(vcf)
 \end{Sinput}
 \begin{Soutput}
-  CHROM   POS        rsID REF ALT
-1  chr1 10019 rs376643643  TA   T
-2  chr1 10055 rs373328635   T  TA
-3  chr1 10108  rs62651026   C   T
-4  chr1 10109 rs376007522   A   T
-5  chr1 10139 rs368469931   A   T
-6  chr1 10144 rs144773400  TA   T
+GRanges object with 240 ranges and 5 metadata columns:
+              seqnames         ranges strand   | paramRangeID            REF
+                 <Rle>      <IRanges>  <Rle>   |     <factor> <DNAStringSet>
+  rs376643643        1 [10019, 10020]      *   |         <NA>             TA
+  rs373328635        1 [10055, 10055]      *   |         <NA>              T
+   rs62651026        1 [10108, 10108]      *   |         <NA>              C
+  rs376007522        1 [10109, 10109]      *   |         <NA>              A
+  rs368469931        1 [10139, 10139]      *   |         <NA>              A
+          ...      ...            ...    ... ...          ...            ...
+  rs544020171        1 [17654, 17654]      *   |         <NA>              T
+  rs563880190        1 [17694, 17694]      *   |         <NA>              C
+  rs574335987        1 [17695, 17695]      *   |         <NA>              G
+  rs374995955        1 [17697, 17697]      *   |         <NA>              G
+  rs543363182        1 [17709, 17709]      *   |         <NA>              T
+                             ALT      QUAL      FILTER
+              <DNAStringSetList> <numeric> <character>
+  rs376643643                  T      <NA>           .
+  rs373328635                 TA      <NA>           .
+   rs62651026                  T      <NA>           .
+  rs376007522                  T      <NA>           .
+  rs368469931                  T      <NA>           .
+          ...                ...       ...         ...
+  rs544020171                  C      <NA>           .
+  rs563880190                  T      <NA>           .
+  rs574335987                  A      <NA>           .
+  rs374995955                  C      <NA>           .
+  rs543363182                  G      <NA>           .
+  -------
+  seqinfo: 1 sequence from hg19 genome; no seqlengths
 \end{Soutput}
 \end{Schunk}
 \begin{itemize}
-\item You can then use \Rfunction{getSnps} to extract HGVS IDs from the vcf object. The IDs will be appended as the \Rcode{'query'} column.
+\item You can then use \Rfunction{formatHgvs} to extract HGVS IDs from the Vcf object.
 \end{itemize}
 
 \begin{Schunk}
 \begin{Sinput}
-> snps <- getSnps(vcf)
-> head(snps[c('query', 'type', 'pos')])
+> hgvs <- formatHgvs(vcf, variant_type="snp")
+> head(hgvs)
 \end{Sinput}
 \begin{Soutput}
-             query type              pos
-3  chr1:g.10108C>T  snp chr1:10108-10108
-4  chr1:g.10109A>T  snp chr1:10109-10109
-5  chr1:g.10139A>T  snp chr1:10139-10139
-8  chr1:g.10150C>T  snp chr1:10150-10150
-9  chr1:g.10177A>C  snp chr1:10177-10177
-11 chr1:g.10180T>C  snp chr1:10180-10180
+[1] "chr1:g.10108TA>T" "chr1:g.10109T>TA" "chr1:g.10139C>T"  "chr1:g.10150A>T" 
+[5] "chr1:g.10177A>T"  "chr1:g.10180TA>T"
 \end{Soutput}
-\begin{Sinput}
-> hgvs <- snps$query
-\end{Sinput}
 \end{Schunk}
 
 
@@ -102,20 +116,19 @@ MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic var
 
 \begin{Schunk}
 \begin{Sinput}
-> getVariants(c("chr1:g.881627G>A", "chr1:g.887560A>C", "chr1:g.888639T>C",
-+               "chr12:g.31477822G>A", "chr3:g.56771251A>C", "chr8:g.62416074G>A"),
+> getVariants(head(hgvs),
 +             fields="cadd.consequence")
 \end{Sinput}
 \begin{Soutput}
-DataFrame with 6 rows and 3 columns
-                  _id               query cadd.consequence
-          <character>         <character>      <character>
-1    chr1:g.881627G>A    chr1:g.881627G>A       SYNONYMOUS
-2    chr1:g.887560A>C    chr1:g.887560A>C               NA
-3    chr1:g.888639T>C    chr1:g.888639T>C               NA
-4 chr12:g.31477822G>A chr12:g.31477822G>A      STOP_GAINED
-5  chr3:g.56771251A>C  chr3:g.56771251A>C   NON_SYNONYMOUS
-6  chr8:g.62416074G>A  chr8:g.62416074G>A      SPLICE_SITE
+DataFrame with 6 rows and 2 columns
+   notfound            query
+  <logical>      <character>
+1      TRUE chr1:g.10108TA>T
+2      TRUE chr1:g.10109T>TA
+3      TRUE  chr1:g.10139C>T
+4      TRUE  chr1:g.10150A>T
+5      TRUE  chr1:g.10177A>T
+6      TRUE chr1:g.10180TA>T
 \end{Soutput}
 \end{Schunk}
 
@@ -152,7 +165,7 @@ $max_score
 [1] 9.948488
 
 $took
-[1] 7
+[1] 529
 
 $total
 [1] 37953
@@ -182,7 +195,7 @@ $total
 
 \begin{Schunk}
 \begin{Sinput}
-> rsids <- vcf$rsID
+> rsids <- paste("rs", info(vcf)$RS, sep="")
 > res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
 \end{Sinput}
 \begin{Soutput}
@@ -190,8 +203,20 @@ Finished
 Pass returnall=TRUE to return lists of duplicate or missing query terms.
 \end{Soutput}
 \begin{Sinput}
-> #subset(res, !is.na(wellderly.vartype))$query
+> subset(res, !is.na(wellderly.vartype))$query
 \end{Sinput}
+\begin{Soutput}
+ [1] "rs367896724" "rs145427775" "rs147093981" "rs56289060"  "rs55998931"  "rs199606420"
+ [7] "rs58108140"  "rs62635284"  "rs62635286"  "rs200579949" "rs531730856" "rs180734498"
+[13] "rs527952245" "rs201696125" "rs370886505" "rs546169444" "rs201055865" "rs369473859"
+[19] "rs62635298"  "rs79585140"  "rs75454623"  "rs199856693" "rs201855936" "rs71252251" 
+[25] "rs201045431" "rs71252250"  "rs200030104" "rs78601809"  "rs62636497"  "rs62636497" 
+[31] "rs201635489" "rs533630043" "rs2691315"   "rs113442401" "rs572465511" "rs372319358"
+[37] "rs200358166" "rs11489794"  "rs113141985" "rs62636498"  "rs148220436" "rs141130360"
+[43] "rs150723783" "rs201459529" "rs199676946" "rs62636367"  "rs62636368"  "rs200205172"
+[49] "rs199745162" "rs200658479" "rs201833382" "rs199740902" "rs200978805" "rs201535981"
+[55] "rs192890528" "rs200046632" "rs374995955"
+\end{Soutput}
 \end{Schunk}
 
 
@@ -199,5 +224,6 @@ Pass returnall=TRUE to return lists of duplicate or missing query terms.
 
 \section{References}
 MyVariant.info
+help@myvariant.info
 
 \end{document}

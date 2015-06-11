@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  1 JUN 2015 15:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  11 JUN 2015 16:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -510,48 +510,33 @@ LaTeX Font Warning: Font shape `TS1/aess/m/n' undefined
 [1
 
 {/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for TS1+aett on input line 37.
-
-
-(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/ts1aett.fd
-File: ts1aett.fd 
-)
-LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 37.
-
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/ts1cmtt.fd
-File: ts1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `TS1/aett/m/sl' in size <12> not available
-(Font)              Font shape `TS1/cmtt/m/sl' tried instead on input line 37.
-
 
 LaTeX Font Warning: Font shape `T1/aett/bx/n' undefined
-(Font)              using `T1/aett/m/n' instead on input line 73.
+(Font)              using `T1/aett/m/n' instead on input line 87.
 
-[2] [3]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 203.
- [4]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 203.
+[2] [3] [4]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 229.
+ [5]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 229.
  (./myvariant.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 203.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 203.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 229.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 229.
 Package rerunfilecheck Info: File `myvariant.out' has not changed.
 (rerunfilecheck)             Checksum: CA0E864AD9FA2E59447488F72BC00013;551.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 203.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 229.
  ) 
 Here is how much of TeX's memory you used:
- 7556 strings out of 493117
- 113331 string characters out of 6135433
- 202275 words of memory out of 5000000
- 10871 multiletter control sequences out of 15000+600000
- 30399 words of font info for 68 fonts, out of 8000000 for 9000
+ 7531 strings out of 493117
+ 112575 string characters out of 6135433
+ 205275 words of memory out of 5000000
+ 10852 multiletter control sequences out of 15000+600000
+ 30101 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,11n,45p,631b,467s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,12n,45p,463b,477s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 }</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb>
 </usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb
@@ -560,12 +545,11 @@ Here is how much of TeX's memory you used:
 /usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
 </usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb>
 </usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><
-/usr/local/texlive/2014/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></u
-sr/local/texlive/2014/texmf-dist/fonts/type1/public/cm-super/sfst1200.pfb>
-Output written on myvariant.pdf (4 pages, 98892 bytes).
+/usr/local/texlive/2014/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on myvariant.pdf (5 pages, 97046 bytes).
 PDF statistics:
  113 PDF objects out of 1000 (max. 8388607)
  96 compressed objects within 1 object stream
- 15 named destinations out of 1000 (max. 500000)
+ 16 named destinations out of 1000 (max. 500000)
  77 words of extra memory for PDF output out of 10000 (max. 10000000)
 

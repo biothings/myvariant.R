@@ -26,26 +26,26 @@ MyVariant.Info is a simple-to-use REST web service to query/retrieve genetic var
 \subsection{Obtaining HGVS IDs from a VCF file. }
 
 \begin{itemize}
-\item Use \Rfunction{getVcf} to read a VCF file into a data.frame. The vcf object can then be passed to \Rfunction{getSnps}, \Rfunction{getIns}, \Rfunction{getDels}, or \Rfunction{getAll} to extract the HGVS IDs for SNPs, deletions, insertions, or all of the above. Keep in mind the vcf object is simply created for the purpose of extracting HGVS IDs. There are no exported functions in the \Rcode{myvariant} package that operate on the vcf object other than the functions to extract the IDs. HGVS IDs are based on the GRCh38/hg19 reference genome. Support for hg38 is coming soon.
+\item Use \Rfunction{readVcf} from the VariantAnnotation package to read a Vcf file in. The Vcf object can then be passed to \Rfunction{formatHgvs} to retrieve HGVS IDs. HGVS IDs are based on the GRCh38/hg19 reference genome. Support for hg38 is coming soon.
 \end{itemize} 
 
 <<echo=FALSE>>=
 library(myvariant)
+library(VariantAnnotation)
 @
 
 <<>>=
 file.path <- system.file("extdata", "dbsnp_mini.vcf", package="myvariant")
-vcf <- getVcf(file.path)
-head(vcf[c('CHROM', 'POS', 'rsID', 'REF', 'ALT')])
+vcf <- readVcf(file.path, genome="hg19")
+rowRanges(vcf)
 @ 
 \begin{itemize}
-\item You can then use \Rfunction{getSnps} to extract HGVS IDs from the vcf object. The IDs will be appended as the \Rcode{'query'} column.
+\item You can then use \Rfunction{formatHgvs} to extract HGVS IDs from the Vcf object.
 \end{itemize}
 
 <<>>=
-snps <- getSnps(vcf)
-head(snps[c('query', 'type', 'pos')])
-hgvs <- snps$query
+hgvs <- formatHgvs(vcf, variant_type="snp")
+head(hgvs)
 @
 
 
@@ -73,8 +73,7 @@ variant[[1]]$cadd$phred
 
 
 <<>>=
-getVariants(c("chr1:g.881627G>A", "chr1:g.887560A>C", "chr1:g.888639T>C",
-              "chr12:g.31477822G>A", "chr3:g.56771251A>C", "chr8:g.62416074G>A"),
+getVariants(head(hgvs),
             fields="cadd.consequence")
 @
 
@@ -109,9 +108,9 @@ queryVariant(q="rs58991260", fields="dbsnp.flags")$hits
 
 
 <<>>=
-rsids <- vcf$rsID
+rsids <- paste("rs", info(vcf)$RS, sep="")
 res <- queryVariants(q=rsids, scopes="dbsnp.rsid", fields="all")
-#subset(res, !is.na(wellderly.vartype))$query
+subset(res, !is.na(wellderly.vartype))$query
 @
 
 

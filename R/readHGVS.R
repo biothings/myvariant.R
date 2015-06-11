@@ -3,7 +3,7 @@ library(S4Vectors)
 library(plyr)
 library(magrittr)
 
-getHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
+formatSingleHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
   if(nchar(ref) == nchar(alt) & nchar(ref) == 1){
     ## snp
     hgvs <- paste(chrom, ":g.", pos, ref, ">", alt, sep="")
@@ -51,74 +51,60 @@ getHgvs <- function(chrom, pos, ref, alt, mutant.type=FALSE){
   else{hgvs}
 }
 
-
-
-
-
-
-getVcf <- function(file.path){
-  stopifnot(grepl(".vcf", file.path))
-  Vcf <- read.csv(file.path, stringsAsFactors=FALSE, header=FALSE, sep='\t', comment.char="#")
-  names(Vcf) <- c("CHROM", "POS", "rsID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", "SAMPLE")[1:ncol(Vcf)]
-  Vcf <- normalize.vcf(Vcf)
-  if(!grepl("chr", Vcf$CHROM)){
-    Vcf$CHROM <- paste("chr", Vcf$CHROM, sep="")
+formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
+  if ("snp" %in% variant_type){
+    snps <- .getSnps(vcf)
   }
-  Vcf
-#   Vcf <- DataFrame(transform(Vcf, colsplit(V10, split = "\\:", names = c('GT', 'AD', 'DP', 'GQ', 'PL')), stringsAsFactors=F))
-#   Vcf$AD <- .factor2List(Vcf$AD)
-#   Vcf$PL <- .factor2List(Vcf$PL)
-}
-
-
-getAll <- function(vcf.df){
-  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
-  snps <- getSnps(vcf.df)
-  dels <- getDels(vcf.df)
-  ins <- getIns(vcf.df)
-  hgvs <- do.call(plyr::rbind.fill, list(snps, dels, ins))
+  else{ snps <- NULL}
+  if ("insertion" %in% variant_type){
+    ins <- .getIns(vcf)
+  }
+  else{ins <- NULL}
+  if ("deletion" %in% variant_type){
+    del <- .getDels(vcf)
+  }
+  else{del <- NULL}
+  hgvs <- c(snps, ins, del)
+  hgvs
+  if(!grepl("chr", hgvs)){
+    hgvs <- paste("chr", hgvs, sep="")
+  }
   hgvs
 }
 
-getSnps <- function(vcf.df){
-  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
-  vcf.df %>%
-    subset(!grepl(",", ALT) & nchar(REF) == nchar(ALT) &
-             nchar(REF) == 1) %>%
-    transform(query=paste(CHROM, ":g.", POS, REF, ">", ALT, sep=""),
-              type="snp", 
-              pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
-}
-
-getDels <- function(vcf.df){
-  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
-  vcf.df %>%
-    subset(!grepl(",", ALT) & nchar(REF) > nchar(ALT) &
-             substring(REF, 1, 1) == ALT) %>%
-    transform(query=paste(CHROM, ":g.", POS,
-                  "_", (POS + nchar(REF) - 1), "del", sep=""),
-                  type="deletion",
-                  pos=paste(.trim(CHROM), ":", .trim(POS), "-", .trim(POS), sep=""))
-}
-
-getIns <- function(vcf.df){
-  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
-  insertions <- subset(vcf.df, !grepl(",", ALT) & nchar(REF) < nchar(ALT) &
-                  REF == substring(ALT, 1, 1))
-  ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
-  end <- insertions$POS + 1
-  hgvs <- cbind(insertions, data.frame(query=paste("id"=insertions$CHROM, ":g.", insertions$POS,
-                  "_", end, "ins", ins, sep=""), 
-                  type="insertion", 
-                  pos=paste(.trim(insertions$CHROM), ":", .trim(insertions$POS), "-", .trim(insertions$POS), sep="")))
+.getSnps <- function(vcf){
+  snp <- rowRanges(vcf)[isSNV(vcf)]
+  if (length(snp) > 0){
+  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(vcf)), ">", as.character(unlist(alt(vcf))), sep="")
+  }
+  else{hgvs <- NULL}
   hgvs
 }
 
-getIndels <- function(vcf.df){
-  stopifnot(all(c('CHROM', 'POS', 'rsID', 'REF', 'ALT') %in% colnames(vcf.df)))
-  vcf <- subset(vcf.df, !grepl(",", ALT))
+.getDels <- function(vcf){
+  del <- rowRanges(vcf)[isDeletion(vcf)]
+  if (length(del) > 0){
+  hgvs <- paste(seqnames(del), ":g.", start(del),
+                  "_", end(del), "del", sep="")
+  }
+  else {hgvs <- NULL}
+  hgvs             
+}
+
+.getIns <- function(vcf){
+  ins <- rowRanges(vcf)[isInsertion(vcf)]
+  #ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
+  if (length(ins) > 0) {
+  hgvs <- paste(seqnames(ins), ":g.", start(ins),
+                  "_", end(seq), "ins", alt(ins), sep="")
+  }
+  else {hgvs <- NULL}       
+  hgvs
+}
+
+.getIndels <- function(vcf){
+  vcf <- rowRanges(vcf)[isDelins(vcf)]
   ## case 1, nchar(ALT) == 1
-  
   dels <- subset(vcf, nchar(REF) > 1 & nchar(ALT) == 1)
   hgvs.1 <- NULL
   if(nrow(dels) > 0){
