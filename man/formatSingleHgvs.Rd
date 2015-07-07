@@ -1,6 +1,6 @@
-\name{getHgvs}
+\name{formatSingleHgvs}
 \docType{methods}
-\alias{getHgvs}
+\alias{formatSingleHgvs}
 
 \title{
 Get Hgvs HGVS ID from chromosome, position, reference and alternate alleles.
@@ -9,7 +9,7 @@ Get Hgvs HGVS ID from chromosome, position, reference and alternate alleles.
 Create a single HGVS ID for a variant from chromosome, position, reference and alternate alleles.
 }
 \usage{
-getHgvs(chrom, pos, ref, alt, mutant_type=FALSE)
+formatSingleHgvs(chrom, pos, ref, alt, mutant_type=FALSE)
 }
 \arguments{
   \item{chrom}{
@@ -24,7 +24,7 @@ Reference allele.
   \item{alt}{
 Alternate allele.
 }
-  \item{mutant.type}{
+  \item{mutant_type}{
 Logical indicating whether to return the type of mutation along with the HGVS ID.
 }
 }
@@ -40,6 +40,6 @@ http://www.hgvs.org/mutnomen/recs-DNA.html
 }
 \examples{
 ## return HGVS ID for a variant
-getHgvs(1, 35367, "G", "A")
+formatSingleHgvs(1, 35367, "G", "A")
 }
 

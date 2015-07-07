@@ -26,11 +26,11 @@ setValidity("MyVariant", validMyVariantObject)
 .return.as <- function(gene_obj, return.as=c("DataFrame", "records", "text")) {
     return.as <- match.arg(return.as)
     if (return.as == "DataFrame") {
-        gene_obj <- .json2df(gene_obj)
-        df <- DataFrame(gene_obj)
-	  df <- rename(df, c("X_id"="_id"))
+        df <- .json2df(gene_obj)
+        if("X_id" %in% names(df)){
+          df <- rename(df, c("X_id"="_id"))}
         df$`_version` <- NULL
-        return(df)
+        return(DataFrame(df))
     } else if (return.as == "text") {
         return(.json.batch.collapse(gene_obj))
     } else {
@@ -43,12 +43,12 @@ setGeneric(".request.get", signature=c("myvariant"),
 setMethod(".request.get", c(myvariant="MyVariant"),
             function(myvariant, path, params=list()){
     url <- paste(myvariant@base.url, path, sep="")
-    headers <- c('User-Agent' = sprintf('R-httr_myvariant.R/httr.%s', version))
+    .headers <- c('User-Agent' = sprintf('R-httr_myvariant.R/httr.%s', version))
     if (exists('params')){
         if (myvariant@debug){
             res <- GET(url, query=params, verbose())
         } else {
-            res <- GET(url, query=params, config=add_headers(headers))
+            res <- GET(url, query=params, config(add_headers(.headers)))
             }
         }
     if (res$status_code != 200) 
@@ -65,14 +65,14 @@ setGeneric(".request.post", signature=c("myvariant"),
 setMethod(".request.post", c(myvariant="MyVariant"),
             function(myvariant, path, params=list()) {
     url <- paste(myvariant@base.url, path, sep="")
-    headers <- c('Content-Type'= 'application/x-www-form-urlencoded',
-            'User-Agent'=sprintf('R-httr_myvariant.R/httr.%s', version))
+    .headers <- c(`Content-Type`='application/x-www-form-urlencoded',
+            `User-Agent`=sprintf('R-httr_myvariant.R/httr.%s', version))
     if (exists('params')){
         if (myvariant@debug){
-            res <- POST(url, body=params, config=list(add_headers(headers)), verbose())
+            res <- POST(url, body=params, config(add_headers(.headers), verbose()))
         }
         else{
-            res <- POST(url, body=params, config=list(add_headers(headers)))
+            res <- POST(url, body=params, config(add_headers(.headers)))
             }
         }
     if (res$status_code != 200)

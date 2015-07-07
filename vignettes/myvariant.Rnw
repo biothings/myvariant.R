@@ -73,7 +73,7 @@ variant[[1]]$cadd$phred
 
 
 <<>>=
-getVariants(head(hgvs),
+getVariants(c("chr1:g.35367G>A", "chr16:g.28883241A>G"),
             fields="cadd.consequence")
 @
 

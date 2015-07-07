@@ -2,6 +2,7 @@
 library(S4Vectors)
 library(plyr)
 library(magrittr)
+library(VariantAnnotation)
 
 formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
   if(nchar(ref) == nchar(alt) & nchar(ref) == 1){

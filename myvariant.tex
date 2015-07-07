@@ -116,19 +116,15 @@ GRanges object with 240 ranges and 5 metadata columns:
 
 \begin{Schunk}
 \begin{Sinput}
-> getVariants(head(hgvs),
+> getVariants(c("chr16:g.28883241A>G", "chr1:g.35367G>A"),
 +             fields="cadd.consequence")
 \end{Sinput}
 \begin{Soutput}
-DataFrame with 6 rows and 2 columns
-   notfound            query
-  <logical>      <character>
-1      TRUE chr1:g.10108TA>T
-2      TRUE chr1:g.10109T>TA
-3      TRUE  chr1:g.10139C>T
-4      TRUE  chr1:g.10150A>T
-5      TRUE  chr1:g.10177A>T
-6      TRUE chr1:g.10180TA>T
+DataFrame with 2 rows and 3 columns
+                 X_id               query cadd.consequence
+          <character>         <character>      <character>
+1 chr16:g.28883241A>G chr16:g.28883241A>G   NON_SYNONYMOUS
+2     chr1:g.35367G>A     chr1:g.35367G>A NONCODING_CHANGE
 \end{Soutput}
 \end{Schunk}
 
@@ -165,7 +161,7 @@ $max_score
 [1] 9.948488
 
 $took
-[1] 529
+[1] 24
 
 $total
 [1] 37953

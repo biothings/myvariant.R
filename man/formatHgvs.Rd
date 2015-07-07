@@ -9,14 +9,14 @@ Get all HGVS IDs from Vcf object.
 Read in a Vcf object created by \code{\link{readVcf}} to extract all HGVS IDs for querying MyVariant.info.
 }
 \usage{
-formatHgvs(vcf, variant_type = c("snp", "deletion", "insertion"))
+formatHgvs(vcf, variant_type = c("snp", "insertion", "deletion"))
 }
 \arguments{
   \item{vcf}{
 Vcf object created by \code{\link{readVcf}}.
 }
   \item{variant_type}{
-Type of variant HGVS IDs to retrieve from Vcf object. Default c("snp", "deletion", "insertion")
+Type of variant HGVS IDs to retrieve from Vcf object. Default c("snp", "insertion", "deletion")
 }
 }
 \value{vector}
