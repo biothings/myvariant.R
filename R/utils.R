@@ -100,5 +100,6 @@ library(magrittr)
 }
 
 .splitCols <- function(split.list, colName){
-  lapply(sapply(split.list, function(i) strsplit(i[grepl(colName, i)], "=")), function(i) tryCatch(i[[2]], error=function(e) e <- NA_integer_)) %>% as.numeric
+  lapply(sapply(split.list, function(i) strsplit(i[grepl(colName, i)], "=")), 
+         function(i) tryCatch(i[[2]], error=function(e) e <- NA_integer_)) %>% as.numeric
 }

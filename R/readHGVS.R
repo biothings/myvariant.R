@@ -76,7 +76,8 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 .getSnps <- function(vcf){
   snp <- rowRanges(vcf)[isSNV(vcf)]
   if (length(snp) > 0){
-  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(vcf)), ">", as.character(unlist(alt(vcf))), sep="")
+  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(vcf)), ">", 
+                as.character(unlist(alt(vcf))), sep="")
   }
   else{hgvs <- NULL}
   hgvs
@@ -94,7 +95,6 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 
 .getIns <- function(vcf){
   ins <- rowRanges(vcf)[isInsertion(vcf)]
-  #ins <- unlist(lapply(insertions$ALT, function(i) substring(i, 2, nchar(as.vector(i)))))
   if (length(ins) > 0) {
   hgvs <- paste(seqnames(ins), ":g.", start(ins),
                   "_", end(seq), "ins", alt(ins), sep="")
@@ -131,7 +131,8 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   if(nrow(delins) > 0){
   hgvs <- data.frame(query=c(hgvs.1, hgvs.2, hgvs.3),
                      type=rep("indel", nrow(dels) + nrow(ins) + nrow(indel),
-                     pos=paste(.trim(delins$CHROM), ":", .trim(delins$POS), "-", .trim(delins$POS), sep="")))
+                     pos=paste(.trim(delins$CHROM), ":", .trim(delins$POS), "-", 
+                               .trim(delins$POS), sep="")))
   }
   else{hgvs <- NULL}
   hgvs

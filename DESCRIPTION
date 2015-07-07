@@ -8,7 +8,7 @@ Maintainer: Adam Mark <adammark@scripps.edu>
 Description: MyVariant.info is a comprehensive aggregation of variant annotation resources. myvariant is a wrapper
              for querying MyVariant.info services 
 License: Artistic-2.0
-Depends: R (>= 3.0.0)
-Imports: httr (>= 0.3), jsonlite (>= 0.9.7), VariantAnnotation, S4Vectors, IRanges, Hmisc, plyr, magrittr
+Depends: R (>= 3.2.1)
+Imports: httr, jsonlite, VariantAnnotation, S4Vectors, Hmisc, plyr, magrittr
 Suggests: BiocStyle
-biocViews: Annotation, GenomicVariation
+biocViews: VariantAnnotation, Annotation, GenomicVariation
