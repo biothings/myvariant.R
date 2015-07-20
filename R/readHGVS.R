@@ -53,6 +53,7 @@ formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
 }
 
 formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
+  seqlevelsStyle(vcf) = "UCSC"
   if ("snp" %in% variant_type){
     snps <- .getSnps(vcf)
   }
@@ -66,11 +67,7 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   }
   else{del <- NULL}
   hgvs <- c(snps, ins, del)
-#   if(!grepl("chr", hgvs)){
-#     hgvs <- paste("chr", hgvs, sep="")
-#   }
-#   hgvs
-  c(paste("chr", hgvs[!grepl("chr", hgvs)], sep=""), hgvs[grepl("chr", hgvs)])
+  hgvs
 }
 
 .getSnps <- function(vcf){
