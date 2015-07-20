@@ -66,11 +66,11 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   }
   else{del <- NULL}
   hgvs <- c(snps, ins, del)
-  hgvs
-  if(!grepl("chr", hgvs)){
-    hgvs <- paste("chr", hgvs, sep="")
-  }
-  hgvs
+#   if(!grepl("chr", hgvs)){
+#     hgvs <- paste("chr", hgvs, sep="")
+#   }
+#   hgvs
+  c(paste("chr", hgvs[!grepl("chr", hgvs)], sep=""), hgvs[grepl("chr", hgvs)])
 }
 
 .getSnps <- function(vcf){

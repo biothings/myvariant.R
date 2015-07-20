@@ -9,7 +9,7 @@ BiocStyle::latex()
 {\item \texttt{\textbackslash#1\{#2\}} #3 \csname#1\endcsname{#2}.}
 
 \title{MyVariant.info R Client}
-\author{Adam Mark}
+\author{Adam Mark, Chunlei Wu}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -55,9 +55,6 @@ head(hgvs)
 \item Use \Rfunction{getVariant}, the wrapper for GET query of "/v1/variant/<hgvsid>" service, to return the variant object for the given HGVS id.
 \end{itemize} 
 
-<<echo=FALSE>>=
-library(myvariant)
-@
 
 <<>>=
 variant <- getVariant("chr1:g.35367G>A")
