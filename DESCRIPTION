@@ -9,6 +9,6 @@ Description: MyVariant.info is a comprehensive aggregation of variant annotation
              for querying MyVariant.info services 
 License: Artistic-2.0
 Depends: R (>= 3.2.1), VariantAnnotation
-Imports: httr, jsonlite, S4Vectors, Hmisc, plyr, magrittr
+Imports: httr, jsonlite, S4Vectors, Hmisc, plyr, magrittr, GenomeInfoDb 
 Suggests: BiocStyle
 biocViews: VariantAnnotation, Annotation, GenomicVariation

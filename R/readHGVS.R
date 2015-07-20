@@ -3,6 +3,7 @@ library(S4Vectors)
 library(plyr)
 library(magrittr)
 library(VariantAnnotation)
+library(GenomeInfoDb)
 
 formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
   if(nchar(ref) == nchar(alt) & nchar(ref) == 1){
@@ -53,7 +54,7 @@ formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
 }
 
 formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
-  seqlevelsStyle(vcf) = "UCSC"
+  seqlevelsStyle(vcf) <- "UCSC"
   if ("snp" %in% variant_type){
     snps <- .getSnps(vcf)
   }
@@ -73,8 +74,8 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 .getSnps <- function(vcf){
   snp <- rowRanges(vcf)[isSNV(vcf)]
   if (length(snp) > 0){
-  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(vcf)), ">", 
-                as.character(unlist(alt(vcf))), sep="")
+  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(snp$REF), ">", 
+                as.character(unlist(snp$ALT)), sep="")
   }
   else{hgvs <- NULL}
   hgvs
