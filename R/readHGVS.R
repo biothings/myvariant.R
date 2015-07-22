@@ -57,6 +57,9 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   if(is(vcf, "CollapsedVCF")){
    vcf <- as(expand(vcf), "VRanges")
   }
+  else{
+    vcf <- expand(vcf)
+  }
   seqlevelsStyle(vcf) <- "UCSC"
   if ("snp" %in% variant_type){
     snps <- .getSnps(vcf)

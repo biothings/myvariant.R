@@ -13,7 +13,7 @@ formatHgvs(vcf, variant_type = c("snp", "insertion", "deletion"))
 }
 \arguments{
   \item{vcf}{
-Vcf object created by \code{\link{readVcf}}.
+Vcf object created by \code{\link{readVcf}} or VRanges object.
 }
   \item{variant_type}{
 Type of variant HGVS IDs to retrieve from Vcf object. Default c("snp", "insertion", "deletion")
