@@ -84,7 +84,7 @@ library(magrittr)
 }
 
 .json2df <- function(x){
-   li <- lapply(x, fromJSON, simplifyDataFrame=TRUE, flatten=TRUE)
+   li <- lapply(x, fromJSON, flatten=TRUE)
    df <- plyr::rbind.fill(li)
    df
 }

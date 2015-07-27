@@ -54,12 +54,12 @@ formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
 }
 
 formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
-  if(is(vcf, "CollapsedVCF")){
-   vcf <- as(expand(vcf), "VRanges")
-  }
-  else{
-    vcf <- expand(vcf)
-  }
+#   if(is(vcf, "CollapsedVCF")){
+#    vcf <- as(expand(vcf), "VRanges")
+#   }
+#   else{
+#     vcf <- expand(vcf)
+#   }
   seqlevelsStyle(vcf) <- "UCSC"
   if ("snp" %in% variant_type){
     snps <- .getSnps(vcf)
@@ -80,8 +80,8 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 .getSnps <- function(vcf){
   snp <- vcf[isSNV(vcf)]
   if (length(snp) > 0){
-  hgvs <- paste(seqnames(snp), ":g.", start(snp), ref(snp), ">", 
-                alt(snp), sep="")
+  hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(snp)), ">", 
+                as.character(unlist(alt(snp))), sep="")
   }
   else{hgvs <- NULL}
   hgvs
@@ -141,17 +141,6 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   else{hgvs <- NULL}
   hgvs
 }
-
-## normalizes rows where ALT == "GA,G" (multiple ALT values)
-normalize.vcf <- function(vcf.df){
-  if (nrow(vcf.df) == 0)
-    return(vcf.df)
-  split.alt <- strsplit(vcf.df$ALT, ",")
-  vcf <- vcf.df[rep(seq(nrow(vcf.df)), elementLengths(split.alt)),]
-  vcf$ALT <- unlist(split.alt)
-  vcf
-}
-
 
 .trim <- function(x){
   gsub("^\\s+|\\s+$", "", x)

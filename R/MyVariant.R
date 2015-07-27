@@ -28,6 +28,9 @@ setValidity("MyVariant", validMyVariantObject)
     if (return.as == "DataFrame") {
         df <- .json2df(gene_obj)
         df$`_version` <- NULL
+        if("X_id" %in% names(df)){
+          names(df)[names(df) == 'X_id'] <- '_id'
+        }
         return(df)
     } else if (return.as == "text") {
         return(.json.batch.collapse(gene_obj))
