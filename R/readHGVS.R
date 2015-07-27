@@ -78,7 +78,10 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 }
 
 .getSnps <- function(vcf){
-  snp <- vcf[isSNV(vcf)]
+  if (is(vcf, "CollapsedVCF")){
+    snp <- rowRanges(vcf[isSNV(vcf)])
+  }
+  else{ snp <- vcf[isSNV(vcf)]}
   if (length(snp) > 0){
   hgvs <- paste(seqnames(snp), ":g.", start(snp), as.character(ref(snp)), ">", 
                 as.character(unlist(alt(snp))), sep="")
@@ -88,7 +91,10 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 }
 
 .getDels <- function(vcf){
-  del <- vcf[isDeletion(vcf)]
+  if (is(vcf, "CollapsedVCF")){
+    del <- rowRanges(vcf[isDeletion(vcf)])
+  }
+  else{ del <- vcf[isDeletion(vcf)]}
   if (length(del) > 0){
   hgvs <- paste(seqnames(del), ":g.", start(del),
                   "_", end(del), "del", sep="")
@@ -98,7 +104,10 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
 }
 
 .getIns <- function(vcf){
-  ins <- vcf[isInsertion(vcf)]
+  if (is(vcf, "CollapsedVCF")){
+  ins <- rowRanges(vcf[isInsertion(vcf)])
+  }
+  else{ ins <- vcf[isInsertion(vcf)]}
   if (length(ins) > 0) {
   hgvs <- paste(seqnames(ins), ":g.", start(ins),
                   "_", end(ins), "ins", alt(ins), sep="")
