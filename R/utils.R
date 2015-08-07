@@ -1,7 +1,4 @@
 ## myvarint utility functions
-library(Hmisc)
-library(plyr)
-library(magrittr)
 
 .collapse <- function(...) {
     paste(unlist(list(...)), sep=",", collapse=",")

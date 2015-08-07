@@ -1,9 +1,4 @@
 ### Various functions for reading VCF columns and creating HGVS IDs
-library(S4Vectors)
-library(plyr)
-library(magrittr)
-library(VariantAnnotation)
-library(GenomeInfoDb)
 
 formatSingleHgvs <- function(chrom, pos, ref, alt, mutant_type=FALSE){
   if(nchar(ref) == nchar(alt) & nchar(ref) == 1){
