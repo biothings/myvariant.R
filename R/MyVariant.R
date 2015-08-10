@@ -2,7 +2,7 @@ version <- '0.5'
 
 MyVariant <- setClass("MyVariant",
     slots=list(base.url="character", delay="numeric", step="numeric", version="character", verbose="logical", debug="logical"),
-    prototype=list(base.url="http://54.149.19.80/v1", delay=1, step=1000, version=version, verbose=TRUE, debug=FALSE))
+    prototype=list(base.url="http://myvariant.info/v1", delay=1, step=1000, version=version, verbose=TRUE, debug=FALSE))
 
 validMyVariantObject <- function(object) {
     errors <- character(0)
