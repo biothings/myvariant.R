@@ -59,7 +59,7 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   }
   else{ins <- NULL}
   if ("deletion" %in% variant_type){
-    del <- .getDels(vcf)
+    del <-.getDels(vcf)
   }
   else{del <- NULL}
   hgvs <- c(snps, ins, del)
@@ -90,7 +90,7 @@ formatHgvs <- function(vcf, variant_type=c("snp", "insertion", "deletion")){
   ins <- vcf[isInsertion(vcf)]
   if (dim(ins)[1] > 0){
   hgvs <- paste(seqnames(ins), ":g.", start(ins),
-                  "_", end(ins), "ins", alt(ins), sep="")
+                  "_", end(ins), "ins", as.character(unlist(alt(ins))), sep="")
   }
   else {hgvs <- NULL}       
   hgvs
