@@ -11,7 +11,7 @@ Return the list of variant objects for the given list of HGVS ids.
 This is a wrapper for POST query of "/variant" service.
 }
 \usage{
-getVariants(hgvsids, fields=NULL, ..., 
+getVariants(hgvsids, fields=NULL, verbose=NULL, ..., 
           return.as=c("DataFrame", "records", "text"), myvariant)
 }
 
@@ -21,6 +21,9 @@ A vector, list, or comm-sep string HGVS ids
 }
   \item{fields}{
 A vector of fields to return. If fields=="all", all available fields are returned.
+}
+  \item{verbose}{
+A logical turning on or off process status messages.  Default = TRUE.
 }
 \item{...}{
 
