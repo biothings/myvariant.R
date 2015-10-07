@@ -80,7 +80,12 @@ setMethod(".request.post", c(myvariant="MyVariant"),
 
 
 .repeated.query <- function(myvariant, path, vecparams, params=list(), return.as) {
-    verbose <- myvariant@verbose
+    if (!is.null(params$verbose)) {
+        verbose <- params$verbose
+    }
+    else {
+        verbose <- myvariant@verbose
+    }
     vecparams.split <- .transpose.nested.list(lapply(vecparams, .splitBySize, maxsize=myvariant@step))
     if (length(vecparams.split) <= 1){
         verbose <- FALSE
@@ -138,29 +143,31 @@ setMethod("getVariant", c(myvariant="missing"),
 })
 
 setGeneric("getVariants", signature=c("myvariant"),
-            function(hgvsids, fields=NULL,
+            function(hgvsids, fields=NULL, verbose=NULL,
             ..., return.as=c("DataFrame", "records", "text"), myvariant) standardGeneric("getVariants"))
 
 setMethod("getVariants", c(myvariant="MyVariant"),
-            function(hgvsids, fields=NULL,
+            function(hgvsids, fields=NULL, verbose=NULL,
             ..., return.as=c("DataFrame", "records", "text"), myvariant) {
     return.as <- match.arg(return.as)
+    params <- list(...)
     if (exists('fields')) {
-        params <- list(...)
         params[['fields']] <- .collapse(fields)
         params <- lapply(params, .collapse)
+    }
+    if (exists('verbose')) {
+        params[['verbose']] <- verbose
     }
     vecparams <- list(ids=.uncollapse(hgvsids))
     res <- .repeated.query(myvariant, '/variant/', vecparams=vecparams, params=params)
     .return.as(res, return.as=return.as)
-
 })
 
 setMethod("getVariants", c(myvariant="missing"),
-            function(hgvsids, fields=NULL,
+            function(hgvsids, fields=NULL, verbose=NULL,
             ..., return.as=c("DataFrame", "records", "text"), myvariant) {
     myvariant <- MyVariant()
-    getVariants(hgvsids, fields, ..., return.as=return.as, myvariant=myvariant) #, fields
+    getVariants(hgvsids, fields, verbose, ..., return.as=return.as, myvariant=myvariant) #, fields
 })
 
 setGeneric("queryVariant", signature=c("myvariant"),
