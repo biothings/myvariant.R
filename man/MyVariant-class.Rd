@@ -35,7 +35,7 @@ Objects can be created by calls of the form \code{MyVariant(base.url="http://myv
   }
 }
 \references{
-https://github.com/Network-of-BioThings/myvariant.info/wiki
+https://github.com/SuLab/myvariant.info/wiki
 }
 \author{
 Adam Mark

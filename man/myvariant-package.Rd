@@ -25,7 +25,7 @@ Maintainer: Adam Mark <adammark@scripps.edu>
  
 }
 \references{
-https://github.com/Network-of-BioThings/myvariant.info/wiki
+https://github.com/SuLab/myvariant.info/wiki
 }
 
 \keyword{ package }
